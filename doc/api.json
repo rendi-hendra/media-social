@@ -103,40 +103,43 @@
             }
           }
         }
-      },
+      }
+    },
+    "/user": {
       "post": {
         "security": [
           {
-            "TodolistAuth": []
+            "Auth": []
           }
         ],
         "tags": ["User"],
-        "summary": "Create new todolist",
-        "description": "Create new todolist to database",
+        "summary": "Create new user",
+        "description": "Create new user to database",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrUpdateTodolist"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
               },
               "examples": {
-                "java": {
-                  "description": "Example create todolist Java",
+                "success": {
+                  "description": "Example success create new user",
                   "value": {
-                    "id": "1",
-                    "name": "Java",
-                    "priority": 3,
-                    "tags": ["java", "Programming"]
-                  }
-                },
-                "php": {
-                  "description": "Example create todolist PHP",
-                  "value": {
-                    "id": "2",
-                    "name": "PHP",
-                    "priority": 5,
-                    "tags": ["php", "Programming"]
+                    "name": "Rendi",
+                    "email": "test@examples.com",
+                    "password": "password"
                   }
                 }
               }
@@ -145,29 +148,57 @@
         },
         "responses": {
           "200": {
-            "description": "Success create todolist",
+            "description": "Success create new user",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Todolist"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
                 },
                 "examples": {
-                  "java": {
-                    "description": "Success creat Java todolist ",
+                  "success": {
+                    "description": "Example success create new user",
                     "value": {
                       "id": "1",
-                      "name": "Java",
-                      "priority": 3,
-                      "tags": ["java", "Programming"]
+                      "name": "Rendi",
+                      "email": "test@examples.com",
+                      "token": "123213edsad1"
                     }
-                  },
-                  "php": {
-                    "description": "Success create PHP todolist ",
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "failed": {
+                    "description": "Example failed create new user",
                     "value": {
-                      "id": "2",
-                      "name": "PHP",
-                      "priority": 5,
-                      "tags": ["php", "Programming"]
+                      "message": "Bad request"
                     }
                   }
                 }
@@ -177,6 +208,7 @@
         }
       }
     },
+
     "/todolist/{todolistId}": {
       "put": {
         "security": [
