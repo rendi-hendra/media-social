@@ -107,11 +107,6 @@
     },
     "/user": {
       "post": {
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
         "tags": ["User"],
         "summary": "Create new user",
         "description": "Create new user to database",
@@ -133,15 +128,10 @@
                   }
                 }
               },
-              "examples": {
-                "success": {
-                  "description": "Example success create new user",
-                  "value": {
-                    "name": "Rendi",
-                    "email": "test@examples.com",
-                    "password": "password"
-                  }
-                }
+              "example": {
+                "name": "Rendi",
+                "email": "test@examples.com",
+                "password": "password"
               }
             }
           }
@@ -208,20 +198,99 @@
         }
       }
     },
+    "/user/login": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Login user",
+        "description": "Login user to database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "email": "test@examples.com",
+                "password": "password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success login user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "email": "test@examples.com",
+                  "token": "123213edsad1"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Email or password invalid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
 
-    "/todolist/{todolistId}": {
+    "/user/{userId}": {
       "put": {
         "security": [
           {
-            "TodolistAuth": []
+            "Auth": []
           }
         ],
         "tags": ["User"],
-        "summary": "Update existing todolist",
-        "description": "Update existing todolist to database",
+        "summary": "Update existing user",
+        "description": "Update existing user to database",
         "parameters": [
           {
-            "$ref": "#/components/parameters/TodolistId"
+            "$ref": "#/components/parameters/UserId"
           }
         ],
         "requestBody": {
@@ -229,25 +298,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrUpdateTodolist"
-              },
-              "examples": {
-                "java": {
-                  "description": "Example create todolist Java",
-                  "value": {
-                    "name": "Java",
-                    "priority": 3,
-                    "tags": ["java", "Programming"]
-                  }
-                },
-                "php": {
-                  "description": "Example create todolist PHP",
-                  "value": {
-                    "name": "PHP",
-                    "priority": 5,
-                    "tags": ["php", "Programming"]
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
                   }
                 }
+              },
+              "example": {
+                "name": "Rendi",
+                "email": "test@examples.com"
               }
             }
           }
@@ -255,31 +318,45 @@
 
         "responses": {
           "200": {
-            "description": "Success update todolist",
+            "description": "Success update user",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Todolist"
-                },
-                "examples": {
-                  "java": {
-                    "description": "Success create Java todolist ",
-                    "value": {
-                      "id": "1",
-                      "name": "Java",
-                      "priority": 3,
-                      "tags": ["java", "Programming"]
-                    }
-                  },
-                  "php": {
-                    "description": "Success create PHP todolist ",
-                    "value": {
-                      "id": "2",
-                      "name": "PHP",
-                      "priority": 5,
-                      "tags": ["php", "Programming"]
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
                     }
                   }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "email": "rendi@example.com"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Bad request"
                 }
               }
             }
@@ -289,20 +366,20 @@
       "delete": {
         "security": [
           {
-            "TodolistAuth": []
+            "Auth": []
           }
         ],
         "tags": ["User"],
-        "summary": "Delete existing todolist",
-        "description": "Delete existing todolist in database",
+        "summary": "Delete existing user",
+        "description": "Delete existing user in database",
         "parameters": [
           {
-            "$ref": "#/components/parameters/TodolistId"
+            "$ref": "#/components/parameters/UserId"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success delete todolist",
+            "description": "Success delete user",
             "content": {
               "application/json": {
                 "schema": {
@@ -325,7 +402,7 @@
             }
           },
           "404": {
-            "description": "Failed delete not found todolist",
+            "description": "Failed delete not found user",
             "content": {
               "application/json": {
                 "schema": {
@@ -338,7 +415,7 @@
                 },
                 "examples": {
                   "failed": {
-                    "description": "Failed delete todolist",
+                    "description": "Failed delete user",
                     "value": {
                       "success": false
                     }
@@ -361,25 +438,14 @@
       }
     },
     "parameters": {
-      "TodolistId": {
-        "name": "todolistId",
+      "UserId": {
+        "name": "userId",
         "in": "path",
         "required": true,
-        "description": "Todolist id for updated",
+        "description": "User id for updated",
         "schema": {
           "type": "string",
-          "minLength": 1,
-          "maxLength": 100
-        },
-        "examples": {
-          "java": {
-            "description": "Sample todolist id for Java",
-            "value": "1"
-          },
-          "php": {
-            "description": "Sample todolist id for PHP",
-            "value": "2"
-          }
+          "minLength": 1
         }
       }
     },
