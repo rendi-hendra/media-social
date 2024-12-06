@@ -71,8 +71,7 @@
                     "value": {
                       "id": "1",
                       "name": "Rendi",
-                      "email": "test@examples.com",
-                      "token": "123213edsad1"
+                      "email": "test@examples.com"
                     }
                   }
                 }
@@ -152,48 +151,19 @@
                     },
                     "email": {
                       "type": "string"
-                    },
-                    "token": {
-                      "type": "string"
                     }
                   }
                 },
-                "examples": {
-                  "success": {
-                    "description": "Example success create new user",
-                    "value": {
-                      "id": "1",
-                      "name": "Rendi",
-                      "email": "test@examples.com",
-                      "token": "123213edsad1"
-                    }
-                  }
+                "example": {
+                  "id": "1",
+                  "name": "Rendi",
+                  "email": "test@examples.com"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "examples": {
-                  "failed": {
-                    "description": "Example failed create new user",
-                    "value": {
-                      "message": "Bad request"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           }
         }
       }
@@ -344,22 +314,7 @@
             }
           },
           "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "message": "Bad request"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           }
         }
       },
@@ -442,57 +397,30 @@
         "name": "userId",
         "in": "path",
         "required": true,
-        "description": "User id for updated",
+        "description": "User id for updated or deleted",
         "schema": {
           "type": "string",
           "minLength": 1
         }
       }
     },
-    "schemas": {
-      "Todolist": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "priority": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
+    "responses": {
+      "badRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "message": "Bad request"
             }
           }
-        }
-      },
-      "CreateOrUpdateTodolist": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "priority": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "ArrayTodolist": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/Todolist"
         }
       }
     }
