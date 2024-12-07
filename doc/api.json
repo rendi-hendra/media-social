@@ -18,9 +18,9 @@
   "servers": [
     {
       "description": "API Server",
-      "url": "https://api.{envronment}",
+      "url": "https://api.{environment}",
       "variables": {
-        "envronment": {
+        "environment": {
           "description": "Server Environment",
           "default": "dev",
           "enum": ["dev", "qa", "prod"]
@@ -51,15 +51,10 @@
                 "schema": {
                   "$ref": "#/components/schemas/CreateOrGetCurrent"
                 },
-                "examples": {
-                  "success": {
-                    "description": "Example success get user current",
-                    "value": {
-                      "id": 1,
-                      "name": "Rendi",
-                      "email": "test@examples.com"
-                    }
-                  }
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "email": "test@examples.com"
                 }
               }
             }
@@ -86,7 +81,8 @@
                     "type": "string"
                   },
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "email"
                   },
                   "password": {
                     "type": "string"
@@ -136,7 +132,8 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "email"
                   },
                   "password": {
                     "type": "string"
@@ -165,7 +162,8 @@
                       "type": "string"
                     },
                     "email": {
-                      "type": "string"
+                      "type": "string",
+                      "format": "email"
                     },
                     "token": {
                       "type": "string"
@@ -362,7 +360,8 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         }
       },
