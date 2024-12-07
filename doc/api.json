@@ -1,10 +1,10 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Todolist Restful API",
+    "title": "Media Social Restful API",
     "version": "1.0",
-    "description": "OpenAPI for Todolist Restful API",
-    "termsOfService": "https://www.todolist.com/termsOfService",
+    "description": "OpenAPI for Media Social Restful API",
+    "termsOfService": "https://www.mediasocial.com/termsOfService",
     "contact": {
       "name": "Rendi hendra Syahputra",
       "email": "rendi2004@gmail.com",
@@ -49,21 +49,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string"
-                    },
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CreateOrUpdate"
                 },
                 "examples": {
                   "success": {
@@ -141,18 +127,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CreateOrUpdate"
                 },
                 "example": {
                   "id": "1",
@@ -292,18 +267,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CreateOrUpdate"
                 },
                 "example": {
                   "id": 1,
@@ -420,6 +384,22 @@
             "example": {
               "message": "Bad request"
             }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "CreateOrUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         }
       }
