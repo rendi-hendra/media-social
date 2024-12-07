@@ -49,13 +49,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrUpdate"
+                  "$ref": "#/components/schemas/CreateOrGetCurrent"
                 },
                 "examples": {
                   "success": {
                     "description": "Example success get user current",
                     "value": {
-                      "id": "1",
+                      "id": 1,
                       "name": "Rendi",
                       "email": "test@examples.com"
                     }
@@ -65,27 +65,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "examples": {
-                  "failed": {
-                    "description": "Example failed get user current",
-                    "value": {
-                      "message": "Unauthorized"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           }
         }
       }
@@ -127,10 +107,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrUpdate"
+                  "$ref": "#/components/schemas/CreateOrGetCurrent"
                 },
                 "example": {
-                  "id": "1",
+                  "id": 1,
                   "name": "Rendi",
                   "email": "test@examples.com"
                 }
@@ -196,7 +176,7 @@
                   "id": 1,
                   "name": "Rendi",
                   "email": "test@examples.com",
-                  "token": "123213edsad1"
+                  "token": "123TOKEN"
                 }
               }
             }
@@ -214,7 +194,7 @@
                   }
                 },
                 "example": {
-                  "message": "Email or password invalid"
+                  "message": "Email or Password invalid"
                 }
               }
             }
@@ -224,61 +204,36 @@
     },
 
     "/user/{userId}": {
-      "put": {
+      "patch": {
         "security": [
           {
             "Auth": []
           }
         ],
         "tags": ["User"],
-        "summary": "Update existing user",
-        "description": "Update existing user to database",
+        "summary": "Logout user",
+        "description": "Update logout existing user to database",
         "parameters": [
           {
             "$ref": "#/components/parameters/UserId"
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  }
-                }
-              },
-              "example": {
-                "name": "Rendi",
-                "email": "test@examples.com"
-              }
-            }
-          }
-        },
-
         "responses": {
           "200": {
-            "description": "Success update user",
+            "description": "Success user logout",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrUpdate"
+                  "$ref": "#/components/schemas/LogoutOrDelete"
                 },
                 "example": {
-                  "id": 1,
-                  "name": "Rendi",
-                  "email": "rendi@example.com"
+                  "success": true
                 }
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
           }
         }
       },
@@ -302,12 +257,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
+                  "$ref": "#/components/schemas/LogoutOrDelete"
                 },
                 "examples": {
                   "success": {
@@ -325,12 +275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    }
-                  }
+                  "$ref": "#/components/schemas/LogoutOrDelete"
                 },
                 "examples": {
                   "failed": {
@@ -386,20 +331,46 @@
             }
           }
         }
+      },
+      "unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "message": "Unauthorized"
+            }
+          }
+        }
       }
     },
     "schemas": {
-      "CreateOrUpdate": {
+      "CreateOrGetCurrent": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "number"
           },
           "name": {
             "type": "string"
           },
           "email": {
             "type": "string"
+          }
+        }
+      },
+      "LogoutOrDelete": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
           }
         }
       }
