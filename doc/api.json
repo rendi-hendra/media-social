@@ -200,7 +200,6 @@
         }
       }
     },
-
     "/user/{userId}": {
       "patch": {
         "security": [
@@ -259,7 +258,7 @@
                 },
                 "examples": {
                   "success": {
-                    "description": "Success delete todolist",
+                    "description": "Success delete user",
                     "value": {
                       "success": true
                     }
@@ -288,6 +287,145 @@
           }
         }
       }
+    },
+    "/profile/{userId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Profile"],
+        "summary": "Get user profile",
+        "description": "Get user profile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "email": "test@examples.com",
+                  "image": "http://example.com/image.jpg"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Profile"],
+        "summary": "Update user profile",
+        "description": "Update user profile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Rendi",
+                "email": "test@examples.com",
+                "image": "http://example.com/image.jpg"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success update user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "email": "test@examples.com",
+                  "image": "http://example.com/image.jpg"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Profile"],
+        "summary": "Delete user profile",
+        "description": "Delete user profile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "image": "http://example.com/default.jpg"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -304,7 +442,7 @@
         "name": "userId",
         "in": "path",
         "required": true,
-        "description": "User id for updated or deleted",
+        "description": "User id for parameter",
         "schema": {
           "type": "string",
           "minLength": 1
@@ -370,6 +508,24 @@
         "properties": {
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "image": {
+            "type": "string"
           }
         }
       }
