@@ -33,7 +33,7 @@
     "url": "https://api.server.test/docs"
   },
   "paths": {
-    "/user/current": {
+    "/users/current": {
       "get": {
         "security": [
           {
@@ -65,7 +65,7 @@
         }
       }
     },
-    "/user": {
+    "/users": {
       "post": {
         "tags": ["User"],
         "summary": "Create new user",
@@ -119,7 +119,7 @@
         }
       }
     },
-    "/user/login": {
+    "/users/login": {
       "post": {
         "tags": ["User"],
         "summary": "Login user",
@@ -200,7 +200,7 @@
         }
       }
     },
-    "/user/{userId}": {
+    "/users/{userId}": {
       "patch": {
         "security": [
           {
@@ -288,7 +288,7 @@
         }
       }
     },
-    "/profile/{userId}": {
+    "/profiles/{userId}": {
       "get": {
         "security": [
           {
@@ -426,6 +426,244 @@
           }
         }
       }
+    },
+    "/follows/{userId}/count": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Get user count follow",
+        "description": "Get user count followers and following",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user count followers and following",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "followers": {
+                      "type": "number"
+                    },
+                    "following": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "example": {
+                  "followers": 10,
+                  "following": 5
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/followers/{userId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Get user list followers",
+        "description": "Get user list followers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user followers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowersAndFollowing"
+                },
+                "example": [
+                  {
+                    "name": "John Doe",
+                    "profile": "http://example.com/johndoe.jpg"
+                  },
+                  {
+                    "name": "Jane Doe",
+                    "profile": "http://example.com/janedoe.jpg"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/following/{userId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Get user list following",
+        "description": "Get user list following",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user following",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowersAndFollowing"
+                },
+                "example": [
+                  {
+                    "name": "John Doe",
+                    "profile": "http://example.com/johndoe.jpg"
+                  },
+                  {
+                    "name": "Jane Doe",
+                    "profile": "http://example.com/janedoe.jpg"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/follow/{userId}": {
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Follow user",
+        "description": "Follow user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success follow user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowAndUnfollow"
+                },
+                "example": {
+                  "status": "success",
+                  "message": "You are now following this user.",
+                  "followerId": 1,
+                  "followingId": 20
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with follow user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorFollowAndUnfollow"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "You are already following this user."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Unfollow user",
+        "description": "Unfollow user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success unfollow user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowAndUnfollow"
+                },
+                "example": {
+                  "status": "success",
+                  "message": "You are now unfollowing this user.",
+                  "followerId": 1,
+                  "followingId": 20
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found unfollow user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorFollowAndUnfollow"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "User not found."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict with unfollow user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorFollowAndUnfollow"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "You cannot unfollow a user you are not following."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -525,6 +763,48 @@
             "format": "email"
           },
           "image": {
+            "type": "string"
+          }
+        }
+      },
+      "FollowersAndFollowing": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FollowAndUnfollow": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "followerId": {
+            "type": "number"
+          },
+          "followingId": {
+            "type": "number"
+          }
+        }
+      },
+      "ErrorFollowAndUnfollow": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
             "type": "string"
           }
         }
