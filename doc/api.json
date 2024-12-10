@@ -664,6 +664,69 @@
           }
         }
       }
+    },
+    "/notifications/{userId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Notification"],
+        "summary": "Get user notifications",
+        "description": "Get user notifications",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "type": "follow",
+                    "message": "John Doe followed you",
+                    "createdAt": "2022-01-01T00:00:00.000Z"
+                  },
+                  {
+                    "id": 2,
+                    "type": "like",
+                    "message": "Jane Doe liked your post",
+                    "createdAt": "2022-01-02T00:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
     }
   },
   "components": {
