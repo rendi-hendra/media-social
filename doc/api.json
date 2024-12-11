@@ -496,10 +496,12 @@
                 },
                 "example": [
                   {
+                    "id": 1,
                     "name": "John Doe",
                     "profile": "http://example.com/johndoe.jpg"
                   },
                   {
+                    "id": 20,
                     "name": "Jane Doe",
                     "profile": "http://example.com/janedoe.jpg"
                   }
@@ -538,10 +540,12 @@
                 },
                 "example": [
                   {
+                    "id": 1,
                     "name": "John Doe",
                     "profile": "http://example.com/johndoe.jpg"
                   },
                   {
+                    "id": 20,
                     "name": "Jane Doe",
                     "profile": "http://example.com/janedoe.jpg"
                   }
@@ -555,7 +559,7 @@
         }
       }
     },
-    "/follow/{userId}": {
+    "/follows": {
       "post": {
         "security": [
           {
@@ -565,11 +569,28 @@
         "tags": ["Follow"],
         "summary": "Follow user",
         "description": "Follow user",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserId"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "followersId": {
+                    "type": "number"
+                  },
+                  "followingId": {
+                    "type": "number"
+                  }
+                }
+              },
+              "example": {
+                "followerId": 1,
+                "followingId": 20
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success follow user",
@@ -579,7 +600,7 @@
                   "$ref": "#/components/schemas/FollowAndUnfollow"
                 },
                 "example": {
-                  "status": "success",
+                  "status": "pending",
                   "message": "You are now following this user.",
                   "followerId": 1,
                   "followingId": 20
@@ -612,11 +633,28 @@
         "tags": ["Follow"],
         "summary": "Unfollow user",
         "description": "Unfollow user",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserId"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "followersId": {
+                    "type": "number"
+                  },
+                  "followingId": {
+                    "type": "number"
+                  }
+                }
+              },
+              "example": {
+                "followerId": 1,
+                "followingId": 20
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success unfollow user",
@@ -665,7 +703,7 @@
         }
       }
     },
-    "/notifications/{userId}": {
+    "/users/{userId}/notifications": {
       "get": {
         "security": [
           {
@@ -699,6 +737,23 @@
                       "message": {
                         "type": "string"
                       },
+                      "actor": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "profileImage": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "isRead": {
+                        "type": "boolean"
+                      },
                       "createdAt": {
                         "type": "string"
                       }
@@ -710,15 +765,234 @@
                     "id": 1,
                     "type": "follow",
                     "message": "John Doe followed you",
+                    "actor": {
+                      "id": 101,
+                      "name": "John Doe",
+                      "profile": "https://example.com/profiles/johndoe.jpg"
+                    },
+                    "isRead": false,
                     "createdAt": "2022-01-01T00:00:00.000Z"
                   },
                   {
                     "id": 2,
                     "type": "like",
-                    "message": "Jane Doe liked your post",
-                    "createdAt": "2022-01-02T00:00:00.000Z"
+                    "message": "Jane Smith liked your post",
+                    "actor": {
+                      "id": 102,
+                      "name": "Jane Smith",
+                      "profile": "https://example.com/profiles/janesmith.jpg"
+                    },
+                    "isRead": true,
+                    "createdAt": "2022-01-02T10:00:00.000Z"
                   }
                 ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/users{userId}/notifications/count": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Notification"],
+        "summary": "Get user notifications count",
+        "description": "Get user notifications count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user notifications count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "unread": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "example": {
+                  "userId": 1,
+                  "total": 15,
+                  "unread": 5
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Notification"],
+        "summary": "Create new notification",
+        "description": "Create new notification to database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "number"
+                  },
+                  "actorId": {
+                    "type": "number"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "userId": 1,
+                "actorId": 101,
+                "type": "follow"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResNotification"
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 2,
+                  "actorId": 101,
+                  "type": "follow",
+                  "message": "John Doe followed you",
+                  "isRead": false,
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/notifications/{notificationId}": {
+      "patch": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Notification"],
+        "summary": "Read notification",
+        "description": "Read notification",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/notificationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isRead": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "isRead": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success read notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResNotification"
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 2,
+                  "actorId": 101,
+                  "type": "follow",
+                  "message": "John Doe followed you",
+                  "isRead": true,
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Notification"],
+        "summary": "Delete notification",
+        "description": "Delete notification",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/notificationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Notification successfully deleted"
+                }
               }
             }
           },
@@ -747,6 +1021,14 @@
         "schema": {
           "type": "string",
           "minLength": 1
+        }
+      },
+      "notificationId": {
+        "in": "path",
+        "name": "notificationId",
+        "required": true,
+        "schema": {
+          "type": "number"
         }
       }
     },
@@ -835,6 +1117,9 @@
         "items": {
           "type": "object",
           "properties": {
+            "id": {
+              "type": "number"
+            },
             "name": {
               "type": "string"
             },
@@ -868,6 +1153,32 @@
             "type": "string"
           },
           "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResNotification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "actorId": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "createdAt": {
             "type": "string"
           }
         }
