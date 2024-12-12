@@ -1001,6 +1001,55 @@
           }
         }
       }
+    },
+    "/posts": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Get all posts",
+        "description": "Get all posts",
+        "responses": {
+          "200": {
+            "description": "Success get all posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "userId": 1,
+                    "content": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  },
+                  {
+                    "id": 2,
+                    "userId": 2,
+                    "content": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
