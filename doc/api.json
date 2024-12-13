@@ -1027,6 +1027,18 @@
                       },
                       "userId": {
                         "type": "number"
+                      },
+                      "image": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
                       }
                     }
                   }
@@ -1035,13 +1047,17 @@
                   {
                     "id": 1,
                     "userId": 1,
-                    "content": "Hello world",
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
                     "createdAt": "2024-12-10T00:00:00.000Z"
                   },
                   {
                     "id": 2,
-                    "userId": 2,
-                    "content": "Hello world",
+                    "userId": 20,
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
                     "createdAt": "2024-12-10T00:00:00.000Z"
                   }
                 ]
