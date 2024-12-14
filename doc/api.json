@@ -1066,6 +1066,136 @@
           }
         }
       }
+    },
+    "/users/{userId}/posts": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Get user posts",
+        "description": "Get user posts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "number"
+                      },
+                      "image": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "userId": 1,
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  },
+                  {
+                    "id": 2,
+                    "userId": 1,
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/post/{postId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Get post by id",
+        "description": "Get post by id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get post by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "image": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "image": "http://example.com/image.jpg",
+                  "slug": "hello-world",
+                  "description": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1084,14 +1214,23 @@
         "required": true,
         "description": "User id for parameter",
         "schema": {
-          "type": "string",
-          "minLength": 1
+          "type": "number"
+        }
+      },
+      "PostId": {
+        "name": "postId",
+        "in": "path",
+        "required": true,
+        "description": "Post id for parameter",
+        "schema": {
+          "type": "number"
         }
       },
       "notificationId": {
         "in": "path",
         "name": "notificationId",
         "required": true,
+        "description": "Notification id for parameter",
         "schema": {
           "type": "number"
         }
