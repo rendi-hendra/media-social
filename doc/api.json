@@ -1065,6 +1065,85 @@
             }
           }
         }
+      },
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Create new post",
+        "description": "Create new post to database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "userId": 1,
+                "image": "http://example.com/image.jpg",
+                "description": "Hello world"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "image": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "image": "http://example.com/image.jpg",
+                  "slug": "hello-world",
+                  "description": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
       }
     },
     "/users/{userId}/posts": {
