@@ -1002,6 +1002,280 @@
         }
       }
     },
+    "/posts/{postId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Get post by id",
+        "description": "Get post by id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get post by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "image": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "image": "http://example.com/image.jpg",
+                  "slug": "hello-world",
+                  "description": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/PostsNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Update post",
+        "description": "Update post",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "description": "Hello world"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success update post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "image": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "image": "http://example.com/image.jpg",
+                  "slug": "hello-world",
+                  "description": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/PostsNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Delete post",
+        "description": "Delete post",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success delete post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Post successfully deleted"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/PostsNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{userId}/posts": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Post"],
+        "summary": "Get user posts",
+        "description": "Get user posts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get user posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "number"
+                      },
+                      "image": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "userId": 1,
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  },
+                  {
+                    "id": 2,
+                    "userId": 1,
+                    "image": "http://example.com/image.jpg",
+                    "slug": "hello-world",
+                    "description": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "User not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
     "/posts": {
       "get": {
         "security": [
@@ -1063,6 +1337,9 @@
                 ]
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
           }
         }
       },
@@ -1145,136 +1422,6 @@
           }
         }
       }
-    },
-    "/users/{userId}/posts": {
-      "get": {
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
-        "tags": ["Post"],
-        "summary": "Get user posts",
-        "description": "Get user posts",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success get user posts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "userId": {
-                        "type": "number"
-                      },
-                      "image": {
-                        "type": "string"
-                      },
-                      "slug": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "createdAt": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": [
-                  {
-                    "id": 1,
-                    "userId": 1,
-                    "image": "http://example.com/image.jpg",
-                    "slug": "hello-world",
-                    "description": "Hello world",
-                    "createdAt": "2024-12-10T00:00:00.000Z"
-                  },
-                  {
-                    "id": 2,
-                    "userId": 1,
-                    "image": "http://example.com/image.jpg",
-                    "slug": "hello-world",
-                    "description": "Hello world",
-                    "createdAt": "2024-12-10T00:00:00.000Z"
-                  }
-                ]
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          }
-        }
-      }
-    },
-    "/post/{postId}": {
-      "get": {
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
-        "tags": ["Post"],
-        "summary": "Get post by id",
-        "description": "Get post by id",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/PostId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success get post by id",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "number"
-                    },
-                    "userId": {
-                      "type": "number"
-                    },
-                    "image": {
-                      "type": "string"
-                    },
-                    "slug": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "createdAt": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "userId": 1,
-                  "image": "http://example.com/image.jpg",
-                  "slug": "hello-world",
-                  "description": "Hello world",
-                  "createdAt": "2024-12-10T00:00:00.000Z"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -1348,6 +1495,24 @@
             },
             "example": {
               "message": "Unauthorized"
+            }
+          }
+        }
+      },
+      "PostsNotFound": {
+        "description": "Post not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "message": "Post not found."
             }
           }
         }
