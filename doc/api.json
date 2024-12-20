@@ -1422,6 +1422,271 @@
           }
         }
       }
+    },
+    "/comments": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Get all comments",
+        "description": "Get all comments",
+        "responses": {
+          "200": {
+            "description": "Success get all comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "number"
+                      },
+                      "postId": {
+                        "type": "number"
+                      },
+                      "comment": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "userId": 1,
+                    "postId": 1,
+                    "comment": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  },
+                  {
+                    "id": 2,
+                    "userId": 1,
+                    "postId": 1,
+                    "comment": "Hello world",
+                    "createdAt": "2024-12-10T00:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Create new comment",
+        "description": "Create new comment to database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "number"
+                  },
+                  "postId": {
+                    "type": "number"
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "userId": 1,
+                "postId": 1,
+                "comment": "Hello world"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new comment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "postId": 1,
+                  "comment": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/comments/{commentId}": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Get comment by id",
+        "description": "Get comment by id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/commentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success get comment by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "postId": 1,
+                  "comment": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Comment not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/{commentId}": {
+      "delete": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Delete comment by user id and comment id",
+        "description": "Delete comment by user id and comment id",
+        "responses": {
+          "200": {
+            "description": "Success delete comment by user id and comment id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Comment successfully deleted"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comment not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Comment not found."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1457,6 +1722,15 @@
         "name": "notificationId",
         "required": true,
         "description": "Notification id for parameter",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "commentId": {
+        "in": "path",
+        "name": "commentId",
+        "required": true,
+        "description": "Comment id for parameter",
         "schema": {
           "type": "number"
         }
