@@ -1423,7 +1423,7 @@
         }
       }
     },
-    "/comments": {
+    "/posts{postId}/comments": {
       "get": {
         "security": [
           {
@@ -1477,81 +1477,6 @@
                     "createdAt": "2024-12-10T00:00:00.000Z"
                   }
                 ]
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          }
-        }
-      },
-      "post": {
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
-        "tags": ["Comment"],
-        "summary": "Create new comment",
-        "description": "Create new comment to database",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "number"
-                  },
-                  "postId": {
-                    "type": "number"
-                  },
-                  "comment": {
-                    "type": "string"
-                  }
-                }
-              },
-              "example": {
-                "userId": 1,
-                "postId": 1,
-                "comment": "Hello world"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success create new comment",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "number"
-                    },
-                    "userId": {
-                      "type": "number"
-                    },
-                    "postId": {
-                      "type": "number"
-                    },
-                    "comment": {
-                      "type": "string"
-                    },
-                    "createdAt": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "userId": 1,
-                  "postId": 1,
-                  "comment": "Hello world",
-                  "createdAt": "2024-12-10T00:00:00.000Z"
-                }
               }
             }
           },
@@ -1635,7 +1560,156 @@
         }
       }
     },
+    "/comments": {
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Create new comment",
+        "description": "Create new comment to database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "number"
+                  },
+                  "postId": {
+                    "type": "number"
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "userId": 1,
+                "postId": 1,
+                "comment": "Hello world"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success create new comment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "postId": 1,
+                  "comment": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
     "/users/{userId}/comments/{commentId}": {
+      "patch": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Comment"],
+        "summary": "Update comment by user id and comment id",
+        "description": "Update comment by user id and comment id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          },
+          {
+            "$ref": "#/components/parameters/commentId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "comment": "Hello world"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success update comment by user id and comment id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "comment": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "userId": 1,
+                  "postId": 1,
+                  "comment": "Hello world",
+                  "createdAt": "2024-12-10T00:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "security": [
           {
@@ -1645,6 +1719,14 @@
         "tags": ["Comment"],
         "summary": "Delete comment by user id and comment id",
         "description": "Delete comment by user id and comment id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          },
+          {
+            "$ref": "#/components/parameters/commentId"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success delete comment by user id and comment id",
