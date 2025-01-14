@@ -1769,6 +1769,112 @@
           }
         }
       }
+    },
+    "/posts/{postId}/likes": {
+      "get": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Like"],
+        "summary": "Like post by id",
+        "description": "Like post by id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success like post by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "count": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "postId": 1,
+                  "count": 10
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Like"],
+        "summary": "Like post by id",
+        "description": "Like post by id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PostId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "number"
+                  }
+                }
+              },
+              "example": {
+                "userId": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success like post by id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "postId": {
+                      "type": "number"
+                    },
+                    "count": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "postId": 1,
+                  "count": 10
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
