@@ -24,6 +24,9 @@ model User {
   token String @db.VarChar()
   createdAt DateTime @db.Timestamp()
 
+  followers Follow[] @relation("FollowerRelation")
+  followings Follow[] @relation("FollowingRelation")
+
   posts Post[]
   comments Comment[]
 
@@ -57,4 +60,24 @@ model Comment {
   post Post @relation(fields: [postId], references: [id])
 
   @@map("comments") 
+}
+
+model Follow {
+  followerId Int
+  followingId Int
+  status Status @default(PENDING)
+
+  follower User @relation("FollowerRelation", fields: [followerId], references: [id])
+  following User @relation("FollowingRelation", fields: [followingId], references: [id])
+
+
+  @@id([followerId, followingId])
+
+  @@map("Follows")
+}
+
+enum Status {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
