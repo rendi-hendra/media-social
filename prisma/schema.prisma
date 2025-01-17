@@ -13,9 +13,9 @@ model User {
   name       String         @db.VarChar(255)
   email      String         @unique @db.VarChar(255)
   password   String         @db.VarChar(255)
-  image      String         @db.VarChar
-  token      String         @db.VarChar
-  createdAt  DateTime       @db.Timestamp(6)
+  image      String?         @db.VarChar
+  token      String?         @db.VarChar
+  createdAt  DateTime?       @db.Timestamp(6)
   followers  Follow[]       @relation("FollowerRelation")
   followings Follow[]       @relation("FollowingRelation")
   like       Like[]
