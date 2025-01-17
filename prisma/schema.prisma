@@ -18,6 +18,7 @@ model User {
   createdAt  DateTime       @db.Timestamp(6)
   followers  Follow[]       @relation("FollowerRelation")
   followings Follow[]       @relation("FollowingRelation")
+  like       Like[]
   comments   Comment[]
   actor      Notification[] @relation("ActorRelation")
   user       Notification[] @relation("UserRelation")
@@ -33,6 +34,7 @@ model Post {
   image         String         @db.VarChar
   description   String         @db.VarChar(500)
   createdAt     DateTime       @db.Timestamp(6)
+  like          Like[]
   comments      Comment[]
   notifications Notification[]
   user          User           @relation(fields: [userId], references: [id])
@@ -60,7 +62,7 @@ model Follow {
   following   User   @relation("FollowingRelation", fields: [followingId], references: [id])
 
   @@id([followerId, followingId])
-  @@map("Follows")
+  @@map("follows")
 }
 
 model Notification {
@@ -76,6 +78,16 @@ model Notification {
   user      User     @relation("UserRelation", fields: [userId], references: [id])
 
   @@map("notifications")
+}
+
+model Like {
+  userId Int
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
+
+  @@id([userId, postId])
+  @@map("likes")
 }
 
 enum Status {
