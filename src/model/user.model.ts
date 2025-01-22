@@ -4,7 +4,7 @@ export class UserResponse {
   email: string;
   image?: string;
   token?: string;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export class RegisterUserRequest {
@@ -12,7 +12,7 @@ export class RegisterUserRequest {
   email: string;
   password: string;
   image?: string;
-  createdAt?: Date;
+  createdAt: string;
 }
 
 export class LoginUserRequest {

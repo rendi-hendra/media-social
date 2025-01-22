@@ -108,7 +108,8 @@
                 "example": {
                   "id": 1,
                   "name": "Rendi",
-                  "email": "test@examples.com"
+                  "email": "test@examples.com",
+                  "createdAt": "2025-12-10T00:00:00.000Z"
                 }
               }
             }
@@ -1993,6 +1994,10 @@
           "email": {
             "type": "string",
             "format": "email"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

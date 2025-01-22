@@ -2,6 +2,7 @@ import { PrismaService } from '../src/common/prisma.service';
 import { Injectable } from '@nestjs/common';
 // import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class TestService {
@@ -20,12 +21,15 @@ export class TestService {
   }
 
   async createUser() {
+    // const now = DateTime.local().setZone('Asia/Jakarta');
+
     await this.prismaService.user.create({
       data: {
         name: 'test',
         email: 'test@example.com',
         password: await bcrypt.hash('test', 10),
         token: 'test',
+        createdAt: DateTime.local().toString(),
       },
     });
   }
