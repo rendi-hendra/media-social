@@ -2,11 +2,16 @@ import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from '../common/prisma.service';
 import { ValidationService } from '../common/validation.service';
-import { RegisterUserRequest, UserResponse } from '../model/user.model';
+import {
+  LoginUserRequest,
+  RegisterUserRequest,
+  UserResponse,
+} from '../model/user.model';
 import { Logger } from 'winston';
 import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class UserService {
@@ -16,7 +21,7 @@ export class UserService {
     private prismaService: PrismaService,
   ) {}
 
-  nowDate = DateTime.local().toString();
+  private nowDate = DateTime.local().toString();
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
     this.logger.debug(`Register new user ${JSON.stringify(request)}`);
@@ -44,6 +49,51 @@ export class UserService {
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,
+    };
+  }
+
+  async login(request: LoginUserRequest): Promise<UserResponse> {
+    this.logger.debug(`Login user ${JSON.stringify(request)}`);
+
+    const loginRequest: LoginUserRequest = this.validationService.validate(
+      UserValidation.LOGIN,
+      request,
+    );
+
+    let user = await this.prismaService.user.findUnique({
+      where: {
+        email: loginRequest.email,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Invalid email or password', 401);
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      loginRequest.password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid email or password', 401);
+    }
+
+    user = await this.prismaService.user.update({
+      where: {
+        email: loginRequest.email,
+      },
+      data: {
+        token: uuid(),
+      },
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      token: user.token,
     };
   }
 }
