@@ -22,7 +22,7 @@ export class UsersController {
     };
   }
 
-  @Post()
+  @Post('/login')
   @HttpCode(200)
   async login(
     @Body() request: LoginUserRequest,

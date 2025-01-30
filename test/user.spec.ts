@@ -23,7 +23,7 @@ describe('UserController', () => {
     logger = app.get(WINSTON_MODULE_PROVIDER);
     testService = app.get(TestService);
   });
-
+  // Register
   describe('POST /api/users', () => {
     beforeEach(async () => {
       await testService.deleteAll();
@@ -73,6 +73,56 @@ describe('UserController', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
+    });
+  });
+  // Login
+  describe('POST /api/users/login', () => {
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+    });
+    it('should be rejected if request is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          email: '',
+          password: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be rejected if request is emal or password is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          email: 'test@example.com',
+          password: 'salah',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to login', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          email: 'test@example.com',
+          password: 'test',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.name).toBe('test');
+      expect(response.body.data.email).toBe('test@example.com');
+      expect(response.body.data.token).toBeDefined();
     });
   });
 });
