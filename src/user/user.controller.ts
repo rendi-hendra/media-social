@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   LoginUserRequest,
@@ -6,10 +6,17 @@ import {
   UserResponse,
 } from '../model/user.model';
 import { WebResponse } from './../model/web.model';
+import { Request } from 'express';
 
 @Controller('/api/users')
 export class UsersController {
   constructor(private userService: UserService) {}
+
+  @Get('/csrf')
+  @HttpCode(200)
+  getCsrfToken(@Req() req: Request) {
+    return { csrfToken: req.csrfToken() };
+  }
 
   @Post()
   @HttpCode(201)

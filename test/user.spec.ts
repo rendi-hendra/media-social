@@ -6,6 +6,8 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { TestService } from './test.service';
 import { TestModule } from './test.module';
+import * as cookieParser from 'cookie-parser';
+import * as csurf from 'csurf';
 
 describe('UserController', () => {
   let app: INestApplication;
@@ -18,11 +20,27 @@ describe('UserController', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    app.use(cookieParser());
+    app.use(csurf({ cookie: true }));
+
     await app.init();
 
     logger = app.get(WINSTON_MODULE_PROVIDER);
     testService = app.get(TestService);
   });
+  // Get CSRF token
+  describe('GET /api/users/csrf', () => {
+    it('should be able to get csrf token', async () => {
+      const response = await request(app.getHttpServer()).get(
+        '/api/users/csrf',
+      );
+      logger.info(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('csrfToken');
+    });
+  });
+
   // Register
   describe('POST /api/users', () => {
     beforeEach(async () => {
