@@ -7,7 +7,7 @@ import {
 } from '../model/user.model';
 import { WebResponse } from './../model/web.model';
 import { Request } from 'express';
-import { Auth } from 'src/common/auth.decorator';
+import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
 
 @Controller('/api/users')

@@ -41,6 +41,37 @@ describe('UserController', () => {
     });
   });
 
+  // Get user current
+  describe('GET /api/users', () => {
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+    });
+    it('should be rejected if token is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/users')
+        .set('Authorization', 'wrong');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to get user', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/users')
+        .set('Authorization', 'test');
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.name).toBe('test');
+      expect(response.body.data.email).toBe('test@example.com');
+      expect(response.body.data.createdAt).toBeDefined();
+    });
+  });
+
   // Register
   describe('POST /api/users', () => {
     beforeEach(async () => {
