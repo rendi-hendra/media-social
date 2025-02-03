@@ -7,6 +7,8 @@ import {
 } from '../model/user.model';
 import { WebResponse } from './../model/web.model';
 import { Request } from 'express';
+import { Auth } from 'src/common/auth.decorator';
+import { User } from '@prisma/client';
 
 @Controller('/api/users')
 export class UsersController {
@@ -16,6 +18,15 @@ export class UsersController {
   @HttpCode(200)
   CsrfToken(@Req() req: Request) {
     return { csrfToken: req.csrfToken() };
+  }
+
+  @Get()
+  @HttpCode(200)
+  async current(@Auth() user: User): Promise<WebResponse<UserResponse>> {
+    const result = await this.userService.current(user);
+    return {
+      data: result,
+    };
   }
 
   @Post()
