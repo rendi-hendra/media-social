@@ -12,6 +12,7 @@ import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,17 @@ export class UserService {
   ) {}
 
   private nowDate = DateTime.local().toString();
+
+  async current(user: User): Promise<UserResponse> {
+    this.logger.debug(`Get current user ${JSON.stringify(user)}`);
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      createdAt: user.createdAt,
+    };
+  }
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
     this.logger.debug(`Register new user ${JSON.stringify(request)}`);
