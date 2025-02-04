@@ -4,6 +4,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap(config: ConfigService) {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -13,7 +14,14 @@ async function bootstrap(config: ConfigService) {
 
   app.use(cookieParser());
 
-  app.use(csurf({ cookie: true }));
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const excludedRoutes = ['/api/users/login', '/api/users']; // Login dan Register dikecualikan
+    if (excludedRoutes.includes(req.path) && req.method === 'POST') {
+      return next();
+    }
+    return csurf({ cookie: true })(req, res, next);
+  });
+
   await app.listen(config.get('PORT'));
 }
 const configService = new ConfigService();

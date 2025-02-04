@@ -24,7 +24,7 @@ export class UsersController {
 
   @Get('/csrf')
   @HttpCode(200)
-  CsrfToken(@Req() req: Request) {
+  csrfToken(@Req() req: Request) {
     return { csrfToken: req.csrfToken() };
   }
 

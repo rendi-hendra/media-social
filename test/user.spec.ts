@@ -8,6 +8,7 @@ import { TestService } from './test.service';
 import { TestModule } from './test.module';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
+import { Request, Response, NextFunction } from 'express';
 
 describe('UserController', () => {
   let app: INestApplication;
@@ -22,7 +23,14 @@ describe('UserController', () => {
     app = moduleFixture.createNestApplication();
 
     app.use(cookieParser());
-    app.use(csurf({ cookie: true }));
+    // Tambahkan pengecualian CSRF seperti di aplikasi utama
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      const excludedRoutes = ['/api/users/login', '/api/users'];
+      if (excludedRoutes.includes(req.path) && req.method === 'POST') {
+        return next();
+      }
+      return csurf({ cookie: true })(req, res, next);
+    });
 
     await app.init();
 
@@ -42,14 +50,14 @@ describe('UserController', () => {
   });
 
   // Get user current
-  describe('GET /api/users', () => {
+  describe('GET /api/users/current', () => {
     beforeEach(async () => {
       await testService.deleteAll();
       await testService.createUser();
     });
     it('should be rejected if token is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/users')
+        .get('/api/users/current')
         .set('Authorization', 'wrong');
 
       logger.info(response.body);
@@ -60,7 +68,7 @@ describe('UserController', () => {
 
     it('should be able to get user', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/users')
+        .get('/api/users/current')
         .set('Authorization', 'test');
 
       logger.info(response.body);
@@ -172,6 +180,51 @@ describe('UserController', () => {
       expect(response.body.data.name).toBe('test');
       expect(response.body.data.email).toBe('test@example.com');
       expect(response.body.data.token).toBeDefined();
+    });
+  });
+
+  // Logout
+  describe('DELETE /api/users/logout', () => {
+    let agent: request.SuperAgentTest;
+
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+
+      // Gunakan agent untuk mengelola cookie
+      agent = request.agent(app.getHttpServer());
+    });
+
+    it('should be rejected if token is invalid', async () => {
+      // Ambil CSRF token
+      const csrfResponse = await agent.get('/api/users/csrf');
+      const csrfToken = csrfResponse.body.csrfToken;
+      const response = await agent
+        .delete('/api/users/logout')
+        .set('Authorization', 'wrong') // Token akses tidak valid
+        .set('X-CSRF-Token', csrfToken); // CSRF token
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to logout', async () => {
+      // Ambil CSRF token
+      const csrfResponse = await agent.get('/api/users/csrf');
+      const csrfToken = csrfResponse.body.csrfToken;
+
+      // Kirim permintaan DELETE dengan CSRF token
+      const logoutResponse = await agent
+        .delete('/api/users/logout')
+        .set('Authorization', 'test') // Token akses yang valid
+        .set('X-CSRF-Token', csrfToken); // CSRF token
+
+      expect(logoutResponse.status).toBe(200);
+      expect(logoutResponse.body.data.id).toBeDefined();
+      expect(logoutResponse.body.data.name).toBe('test');
+      expect(logoutResponse.body.data.email).toBe('test@example.com');
+      expect(logoutResponse.body.data.createdAt).toBeDefined();
+      expect(logoutResponse.body.data.token).toBeNull();
     });
   });
 });
