@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   LoginUserRequest,
@@ -20,7 +28,7 @@ export class UsersController {
     return { csrfToken: req.csrfToken() };
   }
 
-  @Get()
+  @Get('/current')
   @HttpCode(200)
   async current(@Auth() user: User): Promise<WebResponse<UserResponse>> {
     const result = await this.userService.current(user);
@@ -46,6 +54,15 @@ export class UsersController {
     @Body() request: LoginUserRequest,
   ): Promise<WebResponse<UserResponse>> {
     const result = await this.userService.login(request);
+    return {
+      data: result,
+    };
+  }
+
+  @Delete('/logout')
+  @HttpCode(200)
+  async logout(@Auth() user: User): Promise<WebResponse<UserResponse>> {
+    const result = await this.userService.logout(user);
     return {
       data: result,
     };
