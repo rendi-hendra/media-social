@@ -201,8 +201,8 @@
         }
       }
     },
-    "/users/{userId}": {
-      "patch": {
+    "/users/logout": {
+      "delete": {
         "security": [
           {
             "Auth": []
@@ -211,11 +211,25 @@
         "tags": ["User"],
         "summary": "Logout user",
         "description": "Update logout existing user to database",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserId"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              },
+              "example": {
+                "email": "test@examples.com"
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success user logout",
@@ -234,7 +248,9 @@
             "$ref": "#/components/responses/unauthorized"
           }
         }
-      },
+      }
+    },
+    "/user/current": {
       "delete": {
         "security": [
           {
