@@ -19,3 +19,7 @@ export class LoginUserRequest {
   email: string;
   password: string;
 }
+
+export class DeleteUserRequest {
+  password: string;
+}

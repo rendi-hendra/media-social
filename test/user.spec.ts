@@ -253,11 +253,32 @@ describe('UserController', () => {
       expect(response.body.errors).toBeDefined();
     });
 
+    it('should be rejected if request is password invalid', async () => {
+      // Ambil CSRF token
+      const csrfResponse = await agent.get('/api/users/csrf');
+      const csrfToken = csrfResponse.body.csrfToken;
+      const response = await agent
+        .delete('/api/users/current')
+        .send({
+          password: 'wrong',
+        })
+        .set('Authorization', 'test') // Token akses tidak valid
+        .set('X-CSRF-Token', csrfToken); // CSRF token
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
     it('should be able to delete', async () => {
       const csrfResponse = await agent.get('/api/users/csrf');
       const csrfToken = csrfResponse.body.csrfToken;
       const response = await agent
         .delete('/api/users/current')
+        .send({
+          password: 'test',
+        })
         .set('Authorization', 'test') // Token akses tidak valid
         .set('X-CSRF-Token', csrfToken); // CSRF token
 

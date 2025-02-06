@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  DeleteUserRequest,
   LoginUserRequest,
   RegisterUserRequest,
   UserResponse,
@@ -72,9 +73,9 @@ export class UsersController {
   @HttpCode(200)
   async delete(
     @Auth() user: User,
-    @Body() password: string,
+    @Body() request: DeleteUserRequest,
   ): Promise<WebResponse<boolean>> {
-    await this.userService.delete(user, password);
+    await this.userService.delete(user, request);
     return {
       data: true,
     };

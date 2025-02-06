@@ -3,6 +3,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from '../common/prisma.service';
 import { ValidationService } from '../common/validation.service';
 import {
+  DeleteUserRequest,
   LoginUserRequest,
   RegisterUserRequest,
   UserResponse,
@@ -128,10 +129,18 @@ export class UserService {
     };
   }
 
-  async delete(user: User, password: string): Promise<UserResponse> {
+  async delete(user: User, request: DeleteUserRequest): Promise<UserResponse> {
     this.logger.debug(`Delete user ${JSON.stringify(user)}`);
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const userRequest: DeleteUserRequest = this.validationService.validate(
+      UserValidation.DELETE,
+      request,
+    );
+
+    const isPasswordValid = await bcrypt.compare(
+      userRequest.password,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new HttpException('Invalid password', 401);
