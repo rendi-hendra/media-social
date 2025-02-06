@@ -227,4 +227,44 @@ describe('UserController', () => {
       expect(logoutResponse.body.data.token).toBeNull();
     });
   });
+
+  // Delete user
+  describe('DELETE /api/users/current', () => {
+    let agent: request.SuperAgentTest;
+    beforeEach(async () => {
+      await testService.deleteAll();
+      await testService.createUser();
+
+      // Gunakan agent untuk mengelola cookie
+      agent = request.agent(app.getHttpServer());
+    }, 100000);
+    it('should be rejected if request is authentication invalid', async () => {
+      // Ambil CSRF token
+      const csrfResponse = await agent.get('/api/users/csrf');
+      const csrfToken = csrfResponse.body.csrfToken;
+      const response = await agent
+        .delete('/api/users/current')
+        .set('Authorization', 'wrong') // Token akses tidak valid
+        .set('X-CSRF-Token', csrfToken); // CSRF token
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to delete', async () => {
+      const csrfResponse = await agent.get('/api/users/csrf');
+      const csrfToken = csrfResponse.body.csrfToken;
+      const response = await agent
+        .delete('/api/users/current')
+        .set('Authorization', 'test') // Token akses tidak valid
+        .set('X-CSRF-Token', csrfToken); // CSRF token
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBe(true);
+    });
+  });
 });
