@@ -127,4 +127,19 @@ export class UserService {
       token: updatedUser.token,
     };
   }
+
+  async delete(user: User): Promise<UserResponse> {
+    this.logger.debug(`Delete user ${JSON.stringify(user)}`);
+    await this.prismaService.user.delete({
+      where: {
+        email: user.email,
+      },
+    });
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
+  }
 }
