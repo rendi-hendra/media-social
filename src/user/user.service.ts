@@ -128,8 +128,15 @@ export class UserService {
     };
   }
 
-  async delete(user: User): Promise<UserResponse> {
+  async delete(user: User, password: string): Promise<UserResponse> {
     this.logger.debug(`Delete user ${JSON.stringify(user)}`);
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid password', 401);
+    }
+
     await this.prismaService.user.delete({
       where: {
         email: user.email,
