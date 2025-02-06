@@ -70,8 +70,11 @@ export class UsersController {
 
   @Delete('/current')
   @HttpCode(200)
-  async delete(@Auth() user: User): Promise<WebResponse<boolean>> {
-    await this.userService.delete(user);
+  async delete(
+    @Auth() user: User,
+    @Body() password: string,
+  ): Promise<WebResponse<boolean>> {
+    await this.userService.delete(user, password);
     return {
       data: true,
     };
