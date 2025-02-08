@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { User } from '@prisma/client';
+import { CloudinaryService } from '../common/cloudinary.service';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
     private validationService: ValidationService,
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   private nowDate = DateTime.local().toString();
@@ -52,6 +54,8 @@ export class UserService {
     }
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
     registerRequest.createdAt = this.nowDate;
+    registerRequest.image =
+      'https://res.cloudinary.com/dlikh4kok/image/upload/v1739023777/profil/default.png';
 
     const user = await this.prismaService.user.create({
       data: registerRequest,
@@ -61,6 +65,7 @@ export class UserService {
       id: user.id,
       name: user.name,
       email: user.email,
+      image: user.image,
       createdAt: user.createdAt,
     };
   }

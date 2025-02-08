@@ -113,6 +113,7 @@ describe('UserController', () => {
       expect(response.status).toBe(201);
       expect(response.body.data.name).toBe('test');
       expect(response.body.data.email).toBe('test@example.com');
+      expect(response.body.data.image).toBeDefined();
       expect(response.body.data.createdAt).toBeDefined();
     });
 
