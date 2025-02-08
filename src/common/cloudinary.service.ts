@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
-
-type TypeFolder = 'profil' | 'post';
+import {
+  v2 as cloudinary,
+  UploadApiOptions,
+  UploadApiResponse,
+} from 'cloudinary';
 
 @Injectable()
 export class CloudinaryService {
@@ -16,14 +18,10 @@ export class CloudinaryService {
 
   async uploadImage(
     filePath: string,
-    nameFolder: TypeFolder,
-    publicId?: string,
+    options?: UploadApiOptions,
   ): Promise<UploadApiResponse> {
     try {
-      return await cloudinary.uploader.upload(filePath, {
-        public_id: publicId,
-        folder: nameFolder,
-      });
+      return await cloudinary.uploader.upload(filePath, options);
     } catch (error) {
       throw new Error(`Cloudinary upload failed: ${error}`);
     }
