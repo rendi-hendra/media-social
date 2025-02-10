@@ -28,6 +28,8 @@ export class TestService {
         name: 'test',
         email: 'test@example.com',
         password: await bcrypt.hash('test', 10),
+        image:
+          'https://res.cloudinary.com/dlikh4kok/image/upload/v1739023777/profil/default.png',
         token: 'test',
         createdAt: DateTime.local().toString(),
       },
