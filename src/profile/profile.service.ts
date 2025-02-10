@@ -37,6 +37,7 @@ export class ProfileService {
       folder: 'profile',
       resource_type: 'image',
       public_id: `${user.name}${user.id}`,
+      transformation: 'profile',
     });
 
     const updateProfile = await this.prismaService.user.update({
@@ -45,8 +46,6 @@ export class ProfileService {
         image: profile.url,
       },
     });
-
-    console.log(this.cloudinaryService.getCroppedImageUrl(profile.public_id));
 
     return {
       id: updateProfile.id,
