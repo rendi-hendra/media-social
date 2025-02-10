@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   v2 as cloudinary,
@@ -17,14 +17,27 @@ export class CloudinaryService {
   }
 
   async uploadImage(
-    filePath: string,
-    options?: UploadApiOptions,
+    file: Express.Multer.File,
+    options: UploadApiOptions,
   ): Promise<UploadApiResponse> {
-    try {
-      return await cloudinary.uploader.upload(filePath, options);
-    } catch (error) {
-      throw new Error(`Cloudinary upload failed: ${error}`);
-    }
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        options,
+        (err, result) => {
+          if (err) {
+            reject(
+              new InternalServerErrorException(
+                `Cloudinary upload failed: ${err.message}`,
+              ),
+            );
+          } else {
+            resolve(result);
+          }
+        },
+      );
+
+      uploadStream.end(file.buffer); // Mengirim file ke Cloudinary
+    });
   }
 
   getOptimizedImageUrl(publicId: string): string {

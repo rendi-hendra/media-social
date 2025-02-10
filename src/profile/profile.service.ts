@@ -26,4 +26,33 @@ export class ProfileService {
       createdAt: user.createdAt,
     };
   }
+
+  async updateProfile(
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<ProfileResponse> {
+    this.logger.debug(`Update profile ${JSON.stringify(user)}`);
+
+    const profile = await this.cloudinaryService.uploadImage(file, {
+      folder: 'profile',
+      resource_type: 'image',
+      public_id: `${user.name}${user.id}`,
+    });
+
+    const updateProfile = await this.prismaService.user.update({
+      where: { id: user.id },
+      data: {
+        image: profile.url,
+      },
+    });
+
+    console.log(this.cloudinaryService.getCroppedImageUrl(profile.public_id));
+
+    return {
+      id: updateProfile.id,
+      name: updateProfile.name,
+      image: updateProfile.image,
+      createdAt: updateProfile.createdAt,
+    };
+  }
 }

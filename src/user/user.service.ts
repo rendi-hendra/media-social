@@ -53,7 +53,7 @@ export class UserService {
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
     registerRequest.createdAt = this.nowDate;
     registerRequest.image =
-      'https://res.cloudinary.com/dlikh4kok/image/upload/v1739023777/profil/default.png';
+      'https://res.cloudinary.com/dlikh4kok/image/upload/v1739199893/profile/default.png';
 
     const user = await this.prismaService.user.create({
       data: registerRequest,
