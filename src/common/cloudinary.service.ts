@@ -1,7 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  AdminAndResourceOptions,
   v2 as cloudinary,
+  ResourceApiResponse,
   UploadApiOptions,
   UploadApiResponse,
 } from 'cloudinary';
@@ -54,5 +60,27 @@ export class CloudinaryService {
       width: 500,
       height: 500,
     });
+  }
+
+  async getResources(
+    publicId: string[],
+    option?: AdminAndResourceOptions,
+  ): Promise<ResourceApiResponse> {
+    try {
+      return await cloudinary.api.resources_by_ids(publicId, option);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  async deleteResources(
+    publicId: string[],
+    option?: AdminAndResourceOptions,
+  ): Promise<ResourceApiResponse> {
+    try {
+      return await cloudinary.api.delete_resources(publicId, option);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 }

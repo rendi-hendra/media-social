@@ -4,11 +4,3 @@ export class ProfileResponse {
   image: string;
   createdAt: string;
 }
-
-export class UpdateProfileRequest {
-  image: string;
-}
-
-export class DeleteProfileRequest {
-  nama: string;
-}

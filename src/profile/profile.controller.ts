@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   Patch,
@@ -34,6 +35,17 @@ export class ProfileController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<WebResponse<ProfileResponse>> {
     const result = await this.profileService.updateProfile(user, file);
+    return {
+      data: result,
+    };
+  }
+
+  @Delete('/current')
+  @HttpCode(200)
+  async deleteProfile(
+    @Auth() user: User,
+  ): Promise<WebResponse<ProfileResponse>> {
+    const result = await this.profileService.deleteProfile(user);
     return {
       data: result,
     };

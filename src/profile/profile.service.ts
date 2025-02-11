@@ -54,4 +54,32 @@ export class ProfileService {
       createdAt: updateProfile.createdAt,
     };
   }
+
+  async deleteProfile(user: User): Promise<ProfileResponse> {
+    this.logger.debug(`Delete profile ${JSON.stringify(user)}`);
+
+    await this.cloudinaryService.deleteResources([
+      `profile/${user.name}${user.id}`,
+    ]);
+
+    const getProfile = await this.cloudinaryService.getResources([
+      'profile/default',
+    ]);
+
+    this.logger.debug(`Get profile ${JSON.stringify(getProfile.resources[0])}`);
+
+    const updateProfile = await this.prismaService.user.update({
+      where: { id: user.id },
+      data: {
+        image: getProfile.resources[0].url,
+      },
+    });
+
+    return {
+      id: updateProfile.id,
+      name: updateProfile.name,
+      image: updateProfile.image,
+      createdAt: updateProfile.createdAt,
+    };
+  }
 }
