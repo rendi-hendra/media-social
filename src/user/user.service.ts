@@ -50,7 +50,7 @@ export class UserService {
     });
 
     if (totalUserWithSameEmail != 0) {
-      throw new HttpException('Email already exists', 400);
+      throw new HttpException('Email already exists', 409);
     }
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
     registerRequest.createdAt = this.nowDate;
