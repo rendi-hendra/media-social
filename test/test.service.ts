@@ -37,4 +37,16 @@ export class TestService {
       },
     });
   }
+
+  async getUser() {
+    return await this.prismaService.user.findFirst({
+      where: {
+        name: 'test',
+      },
+      omit: {
+        password: true,
+        token: true,
+      },
+    });
+  }
 }
