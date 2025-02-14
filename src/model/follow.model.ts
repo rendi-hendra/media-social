@@ -14,3 +14,7 @@ export class FollowResponse {
 export class FollowRequest {
   id: number;
 }
+
+export class StatusFollowRequest {
+  id: number;
+}

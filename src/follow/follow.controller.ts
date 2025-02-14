@@ -5,6 +5,7 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
+  StatusFollowRequest,
 } from '../model/follow.model';
 import { AuthGuard } from '../common/auth.guard';
 import { WebResponse } from '../model/web.model';
@@ -42,6 +44,18 @@ export class FollowController {
     @Body() request: FollowRequest,
   ): Promise<WebResponse<FollowResponse>> {
     const result = await this.followService.follow(user, request);
+    return {
+      data: result,
+    };
+  }
+
+  @Patch('/status')
+  @HttpCode(200)
+  async updateStatus(
+    @Auth() user: User,
+    @Body() request: StatusFollowRequest,
+  ): Promise<WebResponse<FollowResponse>> {
+    const result = await this.followService.updateStatus(user, request);
     return {
       data: result,
     };

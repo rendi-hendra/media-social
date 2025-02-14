@@ -7,6 +7,7 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
+  StatusFollowRequest,
 } from 'src/model/follow.model';
 import { User } from '@prisma/client';
 import { FollowValidation } from './follow.validation';
@@ -52,35 +53,35 @@ export class FollowService {
   }
 
   async follow(user: User, request: FollowRequest): Promise<FollowResponse> {
-    this.logger.debug(`Request Follow: ${request}`);
+    this.logger.debug(`Request Follow: ${JSON.stringify(request)}`);
 
     const followRequest: FollowRequest = this.validationService.validate(
       FollowValidation.FOLLOW,
       request,
     );
 
-    if (user.id == followRequest.id) {
+    if (user.id === followRequest.id) {
       throw new HttpException('Cannot follow yourself', HttpStatus.BAD_REQUEST);
     }
 
-    const userFollowing = await this.prismaService.user.findUnique({
-      where: {
-        id: followRequest.id,
-      },
-    });
+    // Optimasi query dengan Promise.all
+    const [userFollowing, existingFollow] = await Promise.all([
+      this.prismaService.user.findUnique({
+        where: { id: followRequest.id },
+      }),
+      this.prismaService.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: user.id,
+            followingId: followRequest.id,
+          },
+        },
+      }),
+    ]);
 
     if (!userFollowing) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    const existingFollow = await this.prismaService.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: user.id,
-          followingId: followRequest.id,
-        },
-      },
-    });
 
     if (existingFollow) {
       throw new HttpException('Already following', HttpStatus.CONFLICT);
@@ -95,6 +96,68 @@ export class FollowService {
 
     return {
       status: following.status,
+      following: {
+        id: userFollowing.id,
+        name: userFollowing.name,
+      },
+    };
+  }
+
+  async updateStatus(
+    user: User,
+    request: StatusFollowRequest,
+  ): Promise<FollowResponse> {
+    this.logger.debug(`Update status follow: ${JSON.stringify(request)}`);
+
+    const followRequest: StatusFollowRequest = this.validationService.validate(
+      FollowValidation.STATUS,
+      request,
+    );
+
+    if (user.id === followRequest.id) {
+      throw new HttpException(
+        'Cannot update status yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Optimasi query dengan Promise.all
+    const [userFollowing, followRecord] = await Promise.all([
+      this.prismaService.user.findUnique({ where: { id: followRequest.id } }),
+      this.prismaService.follow.findFirst({
+        // Gunakan findFirst jika tidak dijamin unik
+        where: {
+          followerId: followRequest.id,
+          followingId: user.id,
+        },
+      }),
+    ]);
+
+    if (!userFollowing) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!followRecord) {
+      throw new HttpException('Follow request not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (followRecord.status === 'ACCEPTED') {
+      throw new HttpException('Status already accepted', HttpStatus.CONFLICT);
+    }
+
+    // Update follow request menjadi ACCEPTED
+    const updatedFollow = await this.prismaService.follow.update({
+      where: {
+        followerId_followingId: {
+          followerId: followRequest.id, // Orang yang nge-follow
+          followingId: user.id, // User yang login (harusnya di-follow)
+        },
+      },
+      data: { status: 'ACCEPTED' },
+    });
+
+    return {
+      status: updatedFollow.status,
       following: {
         id: userFollowing.id,
         name: userFollowing.name,
