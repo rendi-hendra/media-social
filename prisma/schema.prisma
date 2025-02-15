@@ -10,12 +10,14 @@ datasource db {
 
 model User {
   id         Int            @id @default(autoincrement())
-  name       String         @db.VarChar(255)
-  email      String         @unique @db.VarChar(255)
+  username   String         @unique @db.VarChar(20)
+  bio        String?        @db.VarChar(255)
+  name       String         @db.VarChar(30)
+  email      String         @unique @db.VarChar(100)
   password   String         @db.VarChar(255)
-  image      String?         @db.VarChar
-  token      String?         @db.VarChar
-  createdAt  String
+  image      String?        @db.VarChar
+  token      String?        @db.VarChar
+  createdAt  DateTime       @default(now()) @db.Timestamptz()
   followers  Follow[]       @relation("FollowerRelation")
   followings Follow[]       @relation("FollowingRelation")
   like       Like[]
@@ -28,12 +30,12 @@ model User {
 }
 
 model Post {
-  id            Int            @id @default(autoincrement())
+  id            String         @id @default(cuid())
   userId        Int
   slug          String         @unique @db.VarChar(255)
   image         String         @db.VarChar
   description   String         @db.VarChar(500)
-  createdAt  String
+  createdAt     DateTime       @default(now()) @db.Timestamptz()
   like          Like[]
   comments      Comment[]
   notifications Notification[]
@@ -43,11 +45,11 @@ model Post {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   userId    Int
-  postId    Int
+  postId    String
   content   String   @db.VarChar(500)
-  createdAt  String
+  createdAt DateTime @default(now()) @db.Timestamptz()
   post      Post     @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 
@@ -66,13 +68,13 @@ model Follow {
 }
 
 model Notification {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   userId    Int
-  postId    Int
+  postId    String
   actorId   Int
   type      Type
   isRead    Boolean  @default(false)
-  createdAt  String
+  createdAt DateTime @default(now()) @db.Timestamptz()
   actor     User     @relation("ActorRelation", fields: [actorId], references: [id])
   post      Post     @relation(fields: [postId], references: [id])
   user      User     @relation("UserRelation", fields: [userId], references: [id])
@@ -82,7 +84,7 @@ model Notification {
 
 model Like {
   userId Int
-  postId Int
+  postId String
   post   Post @relation(fields: [postId], references: [id])
   user   User @relation(fields: [userId], references: [id])
 

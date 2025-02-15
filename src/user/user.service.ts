@@ -11,7 +11,6 @@ import {
 import { Logger } from 'winston';
 import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
-import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { User } from '@prisma/client';
 import { CloudinaryService } from '../common/cloudinary.service';
@@ -25,12 +24,11 @@ export class UserService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  private nowDate = DateTime.local().toString();
-
   async current(user: User): Promise<UserResponse> {
     this.logger.debug(`Get current user ${JSON.stringify(user)}`);
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       image: user.image,
@@ -40,20 +38,33 @@ export class UserService {
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
     this.logger.debug(`Register new user ${JSON.stringify(request)}`);
+
     const registerRequest: RegisterUserRequest =
       this.validationService.validate(UserValidation.REGISTER, request);
 
-    const totalUserWithSameEmail = await this.prismaService.user.count({
-      where: {
-        email: registerRequest.email,
-      },
-    });
+    const [userWithSameUsername, userWithSameEmail] = await Promise.all([
+      this.prismaService.user.findUnique({
+        where: {
+          username: registerRequest.username,
+        },
+      }),
 
-    if (totalUserWithSameEmail != 0) {
+      this.prismaService.user.findUnique({
+        where: {
+          email: registerRequest.email,
+        },
+      }),
+    ]);
+
+    if (userWithSameUsername) {
+      throw new HttpException('Username already exists', 409);
+    }
+
+    if (userWithSameEmail) {
       throw new HttpException('Email already exists', 409);
     }
+
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
-    registerRequest.createdAt = this.nowDate;
 
     const getProfile = await this.cloudinaryService.getResources([
       'profile/default',
@@ -67,6 +78,7 @@ export class UserService {
 
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       image: user.image,
@@ -84,6 +96,7 @@ export class UserService {
 
     let user = await this.prismaService.user.findUnique({
       where: {
+        username: loginRequest.username,
         email: loginRequest.email,
       },
     });
@@ -112,6 +125,7 @@ export class UserService {
 
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,
@@ -131,6 +145,7 @@ export class UserService {
     });
     return {
       id: updatedUser.id,
+      username: updatedUser.username,
       name: updatedUser.name,
       email: updatedUser.email,
       createdAt: updatedUser.createdAt,
@@ -162,6 +177,7 @@ export class UserService {
     });
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,

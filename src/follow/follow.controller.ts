@@ -18,7 +18,7 @@ import {
 } from '../model/follow.model';
 import { AuthGuard } from '../common/auth.guard';
 import { WebResponse } from '../model/web.model';
-import { Auth } from 'src/common/auth.decorator';
+import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
 
 @Controller('/api/follows')

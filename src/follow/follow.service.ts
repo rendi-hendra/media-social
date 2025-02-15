@@ -97,6 +97,7 @@ export class FollowService {
       status: following.status,
       following: {
         id: userFollowing.id,
+        username: userFollowing.username,
         name: userFollowing.name,
       },
     };
@@ -159,6 +160,7 @@ export class FollowService {
       status: updatedFollow.status,
       following: {
         id: userFollowing.id,
+        username: userFollowing.username,
         name: userFollowing.name,
       },
     };

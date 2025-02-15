@@ -103,6 +103,7 @@ describe('UserController', () => {
       const response = await request(app.getHttpServer())
         .post('/api/users')
         .send({
+          username: 'test',
           name: 'test',
           email: 'test@example.com',
           password: 'test',
@@ -117,11 +118,12 @@ describe('UserController', () => {
       expect(response.body.data.createdAt).toBeDefined();
     });
 
-    it('should be rejected if email already exists', async () => {
+    it('should be rejected if email and username already exists', async () => {
       await testService.createUser();
       const response = await request(app.getHttpServer())
         .post('/api/users')
         .send({
+          username: 'test',
           name: 'test',
           email: 'test@example.com',
           password: 'test',
@@ -129,7 +131,7 @@ describe('UserController', () => {
 
       logger.info(response.body);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body.errors).toBeDefined();
     });
   });
@@ -143,6 +145,7 @@ describe('UserController', () => {
       const response = await request(app.getHttpServer())
         .post('/api/users/login')
         .send({
+          username: '',
           email: '',
           password: '',
         });
@@ -157,6 +160,7 @@ describe('UserController', () => {
       const response = await request(app.getHttpServer())
         .post('/api/users/login')
         .send({
+          username: 'test',
           email: 'test@example.com',
           password: 'salah',
         });
@@ -171,6 +175,7 @@ describe('UserController', () => {
       const response = await request(app.getHttpServer())
         .post('/api/users/login')
         .send({
+          username: 'test',
           email: 'test@example.com',
           password: 'test',
         });

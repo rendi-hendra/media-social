@@ -28,12 +28,13 @@ export class TestService {
     await this.prismaService.user.create({
       data: {
         name: 'test',
+        username: 'test',
         email: 'test@example.com',
         password: await bcrypt.hash('test', 10),
         image: (await this.cloudinaryService.getResources(['profile/default']))
           .resources[0].url,
         token: 'test',
-        createdAt: DateTime.local().toString(),
+        createdAt: DateTime.local().toISO(),
       },
     });
   }

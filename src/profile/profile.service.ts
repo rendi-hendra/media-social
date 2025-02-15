@@ -21,6 +21,7 @@ export class ProfileService {
 
     return {
       id: user.id,
+      username: user.username,
       name: user.name,
       image: user.image,
       createdAt: user.createdAt,
@@ -49,6 +50,7 @@ export class ProfileService {
 
     return {
       id: updateProfile.id,
+      username: updateProfile.username,
       name: updateProfile.name,
       image: updateProfile.image,
       createdAt: updateProfile.createdAt,
@@ -77,6 +79,7 @@ export class ProfileService {
 
     return {
       id: updateProfile.id,
+      username: updateProfile.username,
       name: updateProfile.name,
       image: updateProfile.image,
       createdAt: updateProfile.createdAt,

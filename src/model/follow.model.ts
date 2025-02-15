@@ -7,6 +7,7 @@ export class FollowResponse {
   status: string;
   following: {
     id: number;
+    username: string;
     name: string;
   };
 }
