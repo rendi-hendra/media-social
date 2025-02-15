@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -14,7 +15,6 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
-  StatusFollowRequest,
 } from '../model/follow.model';
 import { AuthGuard } from '../common/auth.guard';
 import { WebResponse } from '../model/web.model';
@@ -53,9 +53,21 @@ export class FollowController {
   @HttpCode(200)
   async updateStatus(
     @Auth() user: User,
-    @Body() request: StatusFollowRequest,
+    @Body() request: FollowRequest,
   ): Promise<WebResponse<FollowResponse>> {
     const result = await this.followService.updateStatus(user, request);
+    return {
+      data: result,
+    };
+  }
+
+  @Delete()
+  @HttpCode(200)
+  async unfollow(
+    @Auth() user: User,
+    @Body() request: FollowRequest,
+  ): Promise<WebResponse<{ message: string }>> {
+    const result = await this.followService.unfollow(user, request);
     return {
       data: result,
     };

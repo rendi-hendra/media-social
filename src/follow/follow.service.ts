@@ -7,8 +7,7 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
-  StatusFollowRequest,
-} from 'src/model/follow.model';
+} from '../model/follow.model';
 import { User } from '@prisma/client';
 import { FollowValidation } from './follow.validation';
 
@@ -105,12 +104,12 @@ export class FollowService {
 
   async updateStatus(
     user: User,
-    request: StatusFollowRequest,
+    request: FollowRequest,
   ): Promise<FollowResponse> {
     this.logger.debug(`Update status follow: ${JSON.stringify(request)}`);
 
-    const followRequest: StatusFollowRequest = this.validationService.validate(
-      FollowValidation.STATUS,
+    const followRequest: FollowRequest = this.validationService.validate(
+      FollowValidation.FOLLOW,
       request,
     );
 
@@ -163,5 +162,55 @@ export class FollowService {
         name: userFollowing.name,
       },
     };
+  }
+
+  async unfollow(
+    user: User,
+    request: FollowRequest,
+  ): Promise<{ message: string }> {
+    this.logger.debug(`Unfollow: ${JSON.stringify(request)}`);
+
+    const unfollowRequest: FollowRequest = this.validationService.validate(
+      FollowValidation.FOLLOW,
+      request,
+    );
+
+    if (user.id === unfollowRequest.id) {
+      throw new HttpException(
+        'Cannot unfollow yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Optimasi query dengan Promise.all
+    const [userFollowing, followRecord] = await Promise.all([
+      this.prismaService.user.findUnique({ where: { id: unfollowRequest.id } }),
+      this.prismaService.follow.findFirst({
+        where: {
+          followerId: user.id, // Orang yang nge-follow
+          followingId: unfollowRequest.id, // Orang yang di-follow
+        },
+      }),
+    ]);
+
+    if (!userFollowing) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!followRecord) {
+      throw new HttpException('Follow record not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Hapus follow record
+    await this.prismaService.follow.delete({
+      where: {
+        followerId_followingId: {
+          followerId: user.id, // Orang yang nge-follow
+          followingId: unfollowRequest.id, // Orang yang di-follow
+        },
+      },
+    });
+
+    return { message: 'Unfollowed successfully' };
   }
 }
