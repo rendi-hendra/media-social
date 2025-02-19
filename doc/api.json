@@ -593,17 +593,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "followersId": {
-                    "type": "number"
-                  },
-                  "followingId": {
+                  "id": {
                     "type": "number"
                   }
                 }
               },
               "example": {
-                "followerId": 1,
-                "followingId": 20
+                "id": 1
               }
             }
           }
@@ -617,10 +613,12 @@
                   "$ref": "#/components/schemas/FollowAndUnfollow"
                 },
                 "example": {
-                  "status": "pending",
-                  "message": "You are now following this user.",
-                  "followerId": 1,
-                  "followingId": 20
+                  "status": "ACCEPTED",
+                  "following": {
+                    "id": 1,
+                    "username": "John Doe",
+                    "name": "John Doe"
+                  }
                 }
               }
             }
@@ -635,6 +633,54 @@
                 "example": {
                   "status": "error",
                   "message": "You are already following this user."
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "tags": ["Follow"],
+        "summary": "Update follow status",
+        "description": "Update follow status",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  }
+                }
+              },
+              "example": {
+                "id": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success update follow status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowAndUnfollow"
+                },
+                "example": {
+                  "status": "ACCEPTED",
+                  "following": {
+                    "id": 1,
+                    "username": "John Doe",
+                    "name": "John Doe"
+                  }
                 }
               }
             }
@@ -2066,14 +2112,19 @@
           "status": {
             "type": "string"
           },
-          "message": {
-            "type": "string"
-          },
-          "followerId": {
-            "type": "number"
-          },
-          "followingId": {
-            "type": "number"
+          "following": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
           }
         }
       },
