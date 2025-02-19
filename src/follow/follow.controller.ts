@@ -15,6 +15,7 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
+  FollowUserResponse,
 } from '../model/follow.model';
 import { AuthGuard } from '../common/auth.guard';
 import { WebResponse } from '../model/web.model';
@@ -32,6 +33,18 @@ export class FollowController {
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<FollowCountResponse>> {
     const result = await this.followService.countFollow(userId);
+    return {
+      data: result,
+    };
+  }
+
+  @Get('/:userId')
+  @HttpCode(200)
+  async getFollows(
+    @Auth() user: User,
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<WebResponse<FollowUserResponse>> {
+    const result = await this.followService.getFollows(userId);
     return {
       data: result,
     };

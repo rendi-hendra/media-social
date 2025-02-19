@@ -7,6 +7,7 @@ import {
   FollowCountResponse,
   FollowRequest,
   FollowResponse,
+  FollowUserResponse,
 } from '../model/follow.model';
 import { User } from '@prisma/client';
 import { FollowValidation } from './follow.validation';
@@ -18,6 +19,16 @@ export class FollowService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
   ) {}
+
+  async findUser(userId: number): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
 
   async countFollow(userId: number): Promise<FollowCountResponse> {
     const user = await this.prismaService.user.findUnique({
@@ -49,6 +60,57 @@ export class FollowService {
       followers: countFollowing,
       following: countFollowers,
     };
+  }
+
+  async getFollows(userId: number): Promise<FollowUserResponse> {
+    const user = await this.findUser(userId);
+
+    const [following, followers] = await Promise.all([
+      await this.prismaService.follow.findMany({
+        where: {
+          followerId: userId,
+          status: 'ACCEPTED',
+        },
+        include: {
+          following: true,
+        },
+      }),
+
+      await this.prismaService.follow.findMany({
+        where: {
+          followingId: userId,
+          status: 'ACCEPTED',
+        },
+        include: {
+          follower: true,
+        },
+      }),
+    ]);
+
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      followers: followers.map((follower) => ({
+        id: follower.follower.id,
+        username: follower.follower.username,
+        name: follower.follower.name,
+      })),
+      following: following.map((following) => ({
+        id: following.following.id,
+        username: following.following.username,
+        name: following.following.name,
+      })),
+    };
+
+    // return follows.map((follow) => ({
+    //   status: follow.status,
+    //   following: {
+    //     id: follow.following.id,
+    //     username: follow.following.username,
+    //     name: follow.following.name,
+    //   },
+    // }));
   }
 
   async follow(user: User, request: FollowRequest): Promise<FollowResponse> {
