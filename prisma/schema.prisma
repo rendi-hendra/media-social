@@ -31,7 +31,8 @@ model User {
 
 model Post {
   id            String         @id @default(cuid())
-  userId        Int            @unique @db.Integer 
+  userId        Int            @db.Integer 
+  title         String         @db.VarChar(100)
   slug          String         @unique @db.VarChar(255)
   image         String         @db.VarChar
   description   String         @db.VarChar(500)

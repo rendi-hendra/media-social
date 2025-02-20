@@ -1,7 +1,7 @@
 export class PostResponse {
   id: string;
   userId: number;
-  name: string;
+  author: string;
   slug: string;
   image: string;
   description: string;
@@ -9,10 +9,7 @@ export class PostResponse {
 }
 
 export class CreatePostRequest {
-  userId: number;
-  name: string;
-  slug: string;
+  title: string;
   image: string;
   description: string;
-  createdAt: Date;
 }
