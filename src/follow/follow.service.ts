@@ -102,15 +102,6 @@ export class FollowService {
         name: following.following.name,
       })),
     };
-
-    // return follows.map((follow) => ({
-    //   status: follow.status,
-    //   following: {
-    //     id: follow.following.id,
-    //     username: follow.following.username,
-    //     name: follow.following.name,
-    //   },
-    // }));
   }
 
   async follow(user: User, request: FollowRequest): Promise<FollowResponse> {

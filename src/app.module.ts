@@ -5,6 +5,7 @@ import { TestModule } from '../test/test.module';
 import { ConfigModule } from '@nestjs/config';
 import { ProfileModule } from './profile/profile.module';
 import { FollowModule } from './follow/follow.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { FollowModule } from './follow/follow.module';
     TestModule,
     ProfileModule,
     FollowModule,
+    PostModule,
   ],
   controllers: [],
   providers: [],

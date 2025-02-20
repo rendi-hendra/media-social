@@ -1,8 +1,8 @@
 import {
   AbilityBuilder,
   AbilityClass,
-  InferSubjects,
   PureAbility,
+  InferSubjects,
 } from '@casl/ability';
 import { User } from '@prisma/client';
 
@@ -26,7 +26,7 @@ export function defineAbilityFor(user: User) {
   can(Action.Read, 'Post'); // Semua user bisa membaca postingan
   can(Action.Create, 'Post'); // Semua user bisa membuat postingan
 
-  // User hanya bisa mengedit dan menghapus postingan yang mereka buat
+  // OBAC: User hanya bisa mengedit dan menghapus postingan miliknya sendiri
   can([Action.Update, Action.Delete], 'Post', { authorId: user.id });
 
   return build();
