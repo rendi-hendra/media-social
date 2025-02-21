@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { PrismaService } from '../common/prisma.service';
 import { ValidationService } from '../common/validation.service';
@@ -57,11 +57,11 @@ export class UserService {
     ]);
 
     if (userWithSameUsername) {
-      throw new HttpException('Username already exists', 409);
+      throw new HttpException('Username already exists', HttpStatus.CONFLICT);
     }
 
     if (userWithSameEmail) {
-      throw new HttpException('Email already exists', 409);
+      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
     }
 
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);

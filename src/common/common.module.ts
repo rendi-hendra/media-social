@@ -8,6 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { ErrorFilter } from './error.filter';
 import { AuthMiddleware } from './auth.middleware';
 import { CloudinaryService } from './cloudinary.service';
+import { CaslAbilityFactory } from './ability.factory';
 
 @Global()
 @Module({
@@ -28,8 +29,14 @@ import { CloudinaryService } from './cloudinary.service';
       useClass: ErrorFilter,
     },
     CloudinaryService,
+    CaslAbilityFactory,
   ],
-  exports: [PrismaService, ValidationService, CloudinaryService],
+  exports: [
+    PrismaService,
+    ValidationService,
+    CloudinaryService,
+    CaslAbilityFactory,
+  ],
 })
 export class CommonModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
