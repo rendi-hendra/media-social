@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post..service';
@@ -16,7 +15,6 @@ import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
 import { CreatePostRequest, PostResponse } from '../model/post.model';
-import { AuthGuard } from '../common/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/api/posts')
@@ -25,11 +23,31 @@ export class PostController {
 
   @Get('/:userId')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  async current(
+  async getPostsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<PostResponse[]>> {
-    const result = await this.postService.getPostsCurrent(userId);
+    const result = await this.postService.getPostsByUserId(userId);
+    return {
+      data: result,
+    };
+  }
+
+  @Get('/:userId/:postId')
+  @HttpCode(200)
+  async getPostsByPostId(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('postId') postId: string,
+  ): Promise<WebResponse<PostResponse>> {
+    const result = await this.postService.getPostByPostId(userId, postId);
+    return {
+      data: result,
+    };
+  }
+
+  @Get('')
+  @HttpCode(200)
+  async getfollow(@Auth() user: User): Promise<WebResponse<PostResponse[]>> {
+    const result = await this.postService.beranda(user);
     return {
       data: result,
     };

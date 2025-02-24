@@ -89,8 +89,6 @@ export class FollowService {
 
     return {
       id: user.id,
-      username: user.username,
-      name: user.name,
       followers: followers.map((follower) => ({
         id: follower.follower.id,
         username: follower.follower.username,

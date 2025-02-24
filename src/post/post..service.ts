@@ -35,6 +35,16 @@ export class PostService {
     return user;
   }
 
+  async findPost(postId: string): Promise<Post> {
+    const post = await this.prismaService.post.findUnique({
+      where: { id: postId },
+    });
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    return post;
+  }
+
   slugPost(title: string, name: string): string {
     const randomString = nanoid(10);
     return slugify(`${title} ${name} ${randomString}`, {
@@ -56,7 +66,7 @@ export class PostService {
     };
   }
 
-  async getPostsCurrent(userId: number): Promise<PostResponse[]> {
+  async getPostsByUserId(userId: number): Promise<PostResponse[]> {
     await this.findUser(userId);
 
     const result = await this.prismaService.post.findMany({
@@ -69,6 +79,43 @@ export class PostService {
     });
 
     return result.map((post) => this.toPostResponse(post));
+  }
+
+  async getPostByPostId(userId: number, postId: string): Promise<PostResponse> {
+    const result = await this.prismaService.post.findUnique({
+      where: {
+        id: postId,
+        userId: userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    if (!result) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    return this.toPostResponse(result);
+  }
+
+  async beranda(user: User): Promise<PostResponse[]> {
+    // 1️⃣ Ambil daftar user yang di-follow
+    const following = await this.prismaService.follow.findMany({
+      where: { followerId: user.id },
+      select: { followingId: true },
+    });
+
+    // 2️⃣ Ambil hanya ID mereka dan tambahkan ID user sendiri
+    const followedUserIds = following.map((follow) => follow.followingId);
+    followedUserIds.push(user.id); // Tambahkan user.id agar postingannya sendiri juga muncul
+
+    // 3️⃣ Ambil post dari user yang di-follow termasuk dirinya sendiri
+    const getPost = await this.prismaService.post.findMany({
+      where: { userId: { in: followedUserIds } },
+      include: { user: true },
+    });
+
+    // 4️⃣ Kembalikan hasil yang benar
+    return getPost.map((post) => this.toPostResponse(post));
   }
 
   async createPost(

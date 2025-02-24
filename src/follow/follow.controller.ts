@@ -8,7 +8,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import {
@@ -17,7 +16,6 @@ import {
   FollowResponse,
   FollowUserResponse,
 } from '../model/follow.model';
-import { AuthGuard } from '../common/auth.guard';
 import { WebResponse } from '../model/web.model';
 import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
@@ -27,7 +25,6 @@ export class FollowController {
   constructor(private followService: FollowService) {}
 
   @Get('/count/:userId')
-  @UseGuards(AuthGuard)
   @HttpCode(200)
   async countFollow(
     @Param('userId', ParseIntPipe) userId: number,
@@ -41,7 +38,6 @@ export class FollowController {
   @Get('/:userId')
   @HttpCode(200)
   async getFollows(
-    @Auth() user: User,
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<FollowUserResponse>> {
     const result = await this.followService.getFollows(userId);
