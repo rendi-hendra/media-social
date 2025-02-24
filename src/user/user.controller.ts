@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Post,
   Req,
 } from '@nestjs/common';
@@ -29,10 +31,12 @@ export class UsersController {
     return { csrfToken: req.csrfToken() };
   }
 
-  @Get('/current')
+  @Get('/:userId')
   @HttpCode(200)
-  async current(@Auth() user: User): Promise<WebResponse<UserResponse>> {
-    const result = await this.userService.current(user);
+  async getUser(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<WebResponse<UserResponse>> {
+    const result = await this.userService.getUser(userId);
     return {
       data: result,
     };

@@ -2,8 +2,8 @@ export class UserResponse {
   id: number;
   username: string;
   name: string;
-  email: string;
-  image?: string;
+  email?: string;
+  image: string;
   token?: string;
   createdAt: Date;
 }
@@ -18,7 +18,6 @@ export class RegisterUserRequest {
 }
 
 export class LoginUserRequest {
-  username: string;
   email: string;
   password: string;
 }

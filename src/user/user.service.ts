@@ -24,16 +24,32 @@ export class UserService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async current(user: User): Promise<UserResponse> {
-    this.logger.debug(`Get current user ${JSON.stringify(user)}`);
+  toResponseUser(user: User, includeTokenAndusername = false): UserResponse {
     return {
       id: user.id,
-      username: user.username,
       name: user.name,
-      email: user.email,
+      username: user.username,
       image: user.image,
       createdAt: user.createdAt,
+      ...(includeTokenAndusername ? { email: user.email } : {}),
+      ...(includeTokenAndusername && user.token ? { token: user.token } : {}),
     };
+  }
+
+  async findUser(userId: number): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async getUser(userId: number): Promise<UserResponse> {
+    const user = await this.findUser(userId);
+    this.logger.debug(`Get current user ${JSON.stringify(user)}`);
+    return this.toResponseUser(user);
   }
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
@@ -75,15 +91,7 @@ export class UserService {
     const user = await this.prismaService.user.create({
       data: registerRequest,
     });
-
-    return {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      createdAt: user.createdAt,
-    };
+    return this.toResponseUser(user);
   }
 
   async login(request: LoginUserRequest): Promise<UserResponse> {
@@ -96,7 +104,6 @@ export class UserService {
 
     let user = await this.prismaService.user.findUnique({
       where: {
-        username: loginRequest.username,
         email: loginRequest.email,
       },
     });
@@ -123,14 +130,7 @@ export class UserService {
       },
     });
 
-    return {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-      token: user.token,
-    };
+    return this.toResponseUser(user, true);
   }
 
   async logout(user: User): Promise<UserResponse> {
@@ -143,14 +143,8 @@ export class UserService {
         token: null,
       },
     });
-    return {
-      id: updatedUser.id,
-      username: updatedUser.username,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      createdAt: updatedUser.createdAt,
-      token: updatedUser.token,
-    };
+
+    return this.toResponseUser(updatedUser);
   }
 
   async delete(user: User, request: DeleteUserRequest): Promise<UserResponse> {
@@ -175,12 +169,7 @@ export class UserService {
         email: user.email,
       },
     });
-    return {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-    };
+
+    return this.toResponseUser(user);
   }
 }
