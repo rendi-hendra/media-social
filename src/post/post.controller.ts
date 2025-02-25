@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -10,7 +11,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { PostService } from './post..service';
+import { PostService } from './post.service';
 import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
@@ -44,7 +45,7 @@ export class PostController {
     };
   }
 
-  @Get('')
+  @Get()
   @HttpCode(200)
   async getfollow(@Auth() user: User): Promise<WebResponse<PostResponse[]>> {
     const result = await this.postService.beranda(user);
@@ -75,6 +76,18 @@ export class PostController {
     @Body() request: CreatePostRequest,
   ): Promise<WebResponse<PostResponse>> {
     const result = await this.postService.updatePost(user, postId, request);
+    return {
+      data: result,
+    };
+  }
+
+  @Delete('/:postId')
+  @HttpCode(200)
+  async deletePost(
+    @Auth() user: User,
+    @Param('postId') postId: string,
+  ): Promise<WebResponse<boolean>> {
+    const result = await this.postService.deletePost(user, postId);
     return {
       data: result,
     };

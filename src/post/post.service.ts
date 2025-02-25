@@ -173,14 +173,8 @@ export class PostService {
     request: UpdatePostRequest,
   ): Promise<PostResponse> {
     this.validationService.validate(PostValidation.UPDATED, request);
-    const result = await this.prismaService.post.findUnique({
-      where: {
-        id: postId,
-      },
-    });
-    if (!result) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-    }
+
+    const result = await this.findPost(postId);
 
     if (result.userId !== user.id) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -199,5 +193,19 @@ export class PostService {
       },
     });
     return this.toPostResponse(post);
+  }
+
+  async deletePost(user: User, postId: string): Promise<boolean> {
+    const result = await this.findPost(postId);
+
+    if (result.userId !== user.id) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
+    await this.prismaService.post.delete({
+      where: { id: postId },
+    });
+
+    return true;
   }
 }
