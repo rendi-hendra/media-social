@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ProfileModule } from './profile/profile.module';
 import { FollowModule } from './follow/follow.module';
 import { PostModule } from './post/post.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -16,6 +17,11 @@ import { PostModule } from './post/post.module';
     ProfileModule,
     FollowModule,
     PostModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60s' },
+    }),
   ],
   controllers: [],
   providers: [],
