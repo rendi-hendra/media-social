@@ -21,6 +21,7 @@ import { WebResponse } from './../model/web.model';
 import { Request } from 'express';
 import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
+import { AuthGuard } from '../common/auth.guard';
 
 @Controller('/api/users')
 export class UsersController {
@@ -34,7 +35,7 @@ export class UsersController {
 
   @Get('/:userId')
   @HttpCode(200)
-  @UseGuards(Auth)
+  @UseGuards(AuthGuard)
   async getUser(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<UserResponse>> {
