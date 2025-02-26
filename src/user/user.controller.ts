@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -33,6 +34,7 @@ export class UsersController {
 
   @Get('/:userId')
   @HttpCode(200)
+  @UseGuards(Auth)
   async getUser(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<UserResponse>> {
