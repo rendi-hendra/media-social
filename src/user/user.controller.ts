@@ -8,7 +8,6 @@ import {
   ParseIntPipe,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -21,7 +20,7 @@ import { WebResponse } from './../model/web.model';
 import { Request } from 'express';
 import { Auth } from '../common/auth.decorator';
 import { User } from '@prisma/client';
-import { AuthGuard } from '../common/auth.guard';
+import { Public } from '../common/public.decorator';
 
 @Controller('/api/users')
 export class UsersController {
@@ -35,7 +34,6 @@ export class UsersController {
 
   @Get('/:userId')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
   async getUser(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<WebResponse<UserResponse>> {
@@ -45,6 +43,7 @@ export class UsersController {
     };
   }
 
+  @Public()
   @Post()
   @HttpCode(201)
   async register(
@@ -56,6 +55,7 @@ export class UsersController {
     };
   }
 
+  @Public()
   @Post('/login')
   @HttpCode(200)
   async login(

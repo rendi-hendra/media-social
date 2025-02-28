@@ -4,11 +4,12 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { PrismaService } from './prisma.service';
 import { ValidationService } from './validation.service';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ErrorFilter } from './error.filter';
 import { AuthMiddleware } from './auth.middleware';
 import { CloudinaryService } from './cloudinary.service';
 import { CaslAbilityFactory } from './ability.factory';
+import { JwtGuard } from './jwt.guard';
 
 @Global()
 @Module({
@@ -30,6 +31,10 @@ import { CaslAbilityFactory } from './ability.factory';
     },
     CloudinaryService,
     CaslAbilityFactory,
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
+    },
   ],
   exports: [
     PrismaService,

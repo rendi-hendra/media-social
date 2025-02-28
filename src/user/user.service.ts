@@ -11,9 +11,9 @@ import {
 import { Logger } from 'winston';
 import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuid } from 'uuid';
 import { User } from '@prisma/client';
 import { CloudinaryService } from '../common/cloudinary.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -22,6 +22,7 @@ export class UserService {
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
     private cloudinaryService: CloudinaryService,
+    private jwtService: JwtService,
   ) {}
 
   toResponseUser(user: User, includeTokenAndusername = false): UserResponse {
@@ -102,7 +103,7 @@ export class UserService {
       request,
     );
 
-    let user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: {
         email: loginRequest.email,
       },
@@ -121,14 +122,9 @@ export class UserService {
       throw new HttpException('Invalid email or password', 401);
     }
 
-    user = await this.prismaService.user.update({
-      where: {
-        email: loginRequest.email,
-      },
-      data: {
-        token: uuid(),
-      },
-    });
+    const payload = { sub: user.id, name: user.name, username: user.username };
+    const access_token = await this.jwtService.signAsync(payload);
+    user.token = access_token;
 
     return this.toResponseUser(user, true);
   }
