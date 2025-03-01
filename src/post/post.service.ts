@@ -97,7 +97,9 @@ export class PostService {
     return this.toPostResponse(result);
   }
 
-  async beranda(user: User): Promise<PostResponse[]> {
+  async beranda(userId: number): Promise<PostResponse[]> {
+    const user = await this.findUser(userId);
+
     // 1️⃣ Ambil daftar user yang di-follow
     const following = await this.prismaService.follow.findMany({
       where: { followerId: user.id },
@@ -119,11 +121,13 @@ export class PostService {
   }
 
   async createPost(
-    user: User,
+    userId: number,
     request: CreatePostRequest,
     file: Express.Multer.File,
   ): Promise<PostResponse> {
     this.logger.debug(`Register new user ${JSON.stringify(request)}`);
+
+    const user = await this.findUser(userId);
 
     const randomString = nanoid(10);
 
@@ -168,11 +172,13 @@ export class PostService {
   }
 
   async updatePost(
-    user: User,
+    userId: number,
     postId: string,
     request: UpdatePostRequest,
   ): Promise<PostResponse> {
     this.validationService.validate(PostValidation.UPDATED, request);
+
+    const user = await this.findUser(userId);
 
     const result = await this.findPost(postId);
 
@@ -195,7 +201,8 @@ export class PostService {
     return this.toPostResponse(post);
   }
 
-  async deletePost(user: User, postId: string): Promise<boolean> {
+  async deletePost(userId: number, postId: string): Promise<boolean> {
+    const user = await this.findUser(userId);
     const result = await this.findPost(postId);
 
     if (result.userId !== user.id) {

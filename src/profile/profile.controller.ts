@@ -4,15 +4,15 @@ import {
   Get,
   HttpCode,
   Patch,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { Auth } from '../common/auth.decorator';
-import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
 import { ProfileResponse } from '../model/profile.model';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtRequest } from '../model/jwt.model';
 
 @Controller('/api/profiles')
 export class ProfileController {
@@ -20,8 +20,9 @@ export class ProfileController {
 
   @Get('/current')
   @HttpCode(200)
-  async current(@Auth() user: User): Promise<WebResponse<ProfileResponse>> {
-    const result = await this.profileService.getProfile(user);
+  async current(@Req() req: JwtRequest): Promise<WebResponse<ProfileResponse>> {
+    const userId: number = req.user.sub;
+    const result = await this.profileService.getProfile(userId);
     return {
       data: result,
     };
@@ -31,10 +32,11 @@ export class ProfileController {
   @HttpCode(200)
   @UseInterceptors(FileInterceptor('file')) // Tangkap file yang diunggah
   async updateProfile(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<WebResponse<ProfileResponse>> {
-    const result = await this.profileService.updateProfile(user, file);
+    const userId: number = req.user.sub;
+    const result = await this.profileService.updateProfile(userId, file);
     return {
       data: result,
     };
@@ -43,9 +45,10 @@ export class ProfileController {
   @Delete('/current')
   @HttpCode(200)
   async deleteProfile(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
   ): Promise<WebResponse<ProfileResponse>> {
-    const result = await this.profileService.deleteProfile(user);
+    const userId: number = req.user.sub;
+    const result = await this.profileService.deleteProfile(userId);
     return {
       data: result,
     };

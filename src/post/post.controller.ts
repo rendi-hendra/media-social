@@ -8,15 +8,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { Auth } from '../common/auth.decorator';
-import { User } from '@prisma/client';
 import { WebResponse } from '../model/web.model';
 import { CreatePostRequest, PostResponse } from '../model/post.model';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtRequest } from '../model/jwt.model';
 
 @Controller('/api/posts')
 export class PostController {
@@ -47,8 +47,11 @@ export class PostController {
 
   @Get()
   @HttpCode(200)
-  async getfollow(@Auth() user: User): Promise<WebResponse<PostResponse[]>> {
-    const result = await this.postService.beranda(user);
+  async getfollow(
+    @Req() req: JwtRequest,
+  ): Promise<WebResponse<PostResponse[]>> {
+    const userId: number = req.user.sub;
+    const result = await this.postService.beranda(userId);
     return {
       data: result,
     };
@@ -58,11 +61,12 @@ export class PostController {
   @HttpCode(201)
   @UseInterceptors(FileInterceptor('file')) // Tangkap file yang diunggah
   async createPost(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Body() request: CreatePostRequest,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<WebResponse<PostResponse>> {
-    const result = await this.postService.createPost(user, request, file);
+    const userId: number = req.user.sub;
+    const result = await this.postService.createPost(userId, request, file);
     return {
       data: result,
     };
@@ -71,11 +75,12 @@ export class PostController {
   @Patch('/:postId')
   @HttpCode(200)
   async updatePost(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Param('postId') postId: string,
     @Body() request: CreatePostRequest,
   ): Promise<WebResponse<PostResponse>> {
-    const result = await this.postService.updatePost(user, postId, request);
+    const userId: number = req.user.sub;
+    const result = await this.postService.updatePost(userId, postId, request);
     return {
       data: result,
     };
@@ -84,10 +89,11 @@ export class PostController {
   @Delete('/:postId')
   @HttpCode(200)
   async deletePost(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Param('postId') postId: string,
   ): Promise<WebResponse<boolean>> {
-    const result = await this.postService.deletePost(user, postId);
+    const userId: number = req.user.sub;
+    const result = await this.postService.deletePost(userId, postId);
     return {
       data: result,
     };

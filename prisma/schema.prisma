@@ -40,7 +40,7 @@ model Post {
   like          Like[]
   comments      Comment[]
   notifications Notification[]
-  user          User           @relation(fields: [userId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("posts")
 }
@@ -51,8 +51,8 @@ model Comment {
   postId    String
   content   String   @db.VarChar(500)
   createdAt DateTime @default(now()) @db.Timestamptz()
-  post      Post     @relation(fields: [postId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
@@ -61,8 +61,8 @@ model Follow {
   followerId  Int
   followingId Int
   status      Status @default(PENDING)
-  follower    User   @relation("FollowerRelation", fields: [followerId], references: [id])
-  following   User   @relation("FollowingRelation", fields: [followingId], references: [id])
+  follower    User   @relation("FollowerRelation", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User   @relation("FollowingRelation", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@id([followerId, followingId])
   @@map("follows")
@@ -76,9 +76,9 @@ model Notification {
   type      Type
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now()) @db.Timestamptz()
-  actor     User     @relation("ActorRelation", fields: [actorId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
-  user      User     @relation("UserRelation", fields: [userId], references: [id])
+  actor     User     @relation("ActorRelation", fields: [actorId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserRelation", fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -86,8 +86,8 @@ model Notification {
 model Like {
   userId Int
   postId String
-  post   Post @relation(fields: [postId], references: [id])
-  user   User @relation(fields: [userId], references: [id])
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, postId])
   @@map("likes")

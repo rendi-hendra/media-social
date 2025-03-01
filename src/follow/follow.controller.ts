@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import {
@@ -17,8 +18,7 @@ import {
   FollowUserResponse,
 } from '../model/follow.model';
 import { WebResponse } from '../model/web.model';
-import { Auth } from '../common/auth.decorator';
-import { User } from '@prisma/client';
+import { JwtRequest } from '../model/jwt.model';
 
 @Controller('/api/follows')
 export class FollowController {
@@ -49,10 +49,11 @@ export class FollowController {
   @Post()
   @HttpCode(201)
   async createFollow(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Body() request: FollowRequest,
   ): Promise<WebResponse<FollowResponse>> {
-    const result = await this.followService.follow(user, request);
+    const userId: number = req.user.sub;
+    const result = await this.followService.follow(userId, request);
     return {
       data: result,
     };
@@ -61,10 +62,11 @@ export class FollowController {
   @Patch('/status')
   @HttpCode(200)
   async updateStatus(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Body() request: FollowRequest,
   ): Promise<WebResponse<FollowResponse>> {
-    const result = await this.followService.updateStatus(user, request);
+    const userId: number = req.user.sub;
+    const result = await this.followService.updateStatus(userId, request);
     return {
       data: result,
     };
@@ -73,10 +75,11 @@ export class FollowController {
   @Delete()
   @HttpCode(200)
   async unfollow(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Body() request: FollowRequest,
   ): Promise<WebResponse<{ message: string }>> {
-    const result = await this.followService.unfollow(user, request);
+    const userId: number = req.user.sub;
+    const result = await this.followService.unfollow(userId, request);
     return {
       data: result,
     };

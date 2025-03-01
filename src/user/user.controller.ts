@@ -18,14 +18,14 @@ import {
 } from '../model/user.model';
 import { WebResponse } from './../model/web.model';
 import { Request } from 'express';
-import { Auth } from '../common/auth.decorator';
-import { User } from '@prisma/client';
 import { Public } from '../common/public.decorator';
+import { JwtRequest } from '../model/jwt.model';
 
 @Controller('/api/users')
 export class UsersController {
   constructor(private userService: UserService) {}
 
+  @Public()
   @Get('/csrf')
   @HttpCode(200)
   csrfToken(@Req() req: Request) {
@@ -67,22 +67,14 @@ export class UsersController {
     };
   }
 
-  @Delete('/logout')
-  @HttpCode(200)
-  async logout(@Auth() user: User): Promise<WebResponse<UserResponse>> {
-    const result = await this.userService.logout(user);
-    return {
-      data: result,
-    };
-  }
-
   @Delete('/current')
   @HttpCode(200)
   async delete(
-    @Auth() user: User,
+    @Req() req: JwtRequest,
     @Body() request: DeleteUserRequest,
   ): Promise<WebResponse<boolean>> {
-    await this.userService.delete(user, request);
+    const userId: number = req.user.sub;
+    await this.userService.delete(userId, request);
     return {
       data: true,
     };

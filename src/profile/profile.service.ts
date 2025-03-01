@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ValidationService } from '../common/validation.service';
 import { PrismaService } from '../common/prisma.service';
 import { CloudinaryService } from '../common/cloudinary.service';
@@ -16,8 +16,20 @@ export class ProfileService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async getProfile(user: User): Promise<ProfileResponse> {
-    this.logger.debug(`Get profile ${JSON.stringify(user)}`);
+  async findUser(userId: number): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
+  async getProfile(userId: number): Promise<ProfileResponse> {
+    this.logger.debug(`Get profile ${JSON.stringify(userId)}`);
+
+    const user = await this.findUser(userId);
 
     return {
       id: user.id,
@@ -29,10 +41,12 @@ export class ProfileService {
   }
 
   async updateProfile(
-    user: User,
+    userId: number,
     file: Express.Multer.File,
   ): Promise<ProfileResponse> {
-    this.logger.debug(`Update profile ${JSON.stringify(user)}`);
+    this.logger.debug(`Update profile ${JSON.stringify(file)}`);
+
+    const user = await this.findUser(userId);
 
     const profile = await this.cloudinaryService.uploadImage(file, {
       folder: 'profile',
@@ -57,8 +71,10 @@ export class ProfileService {
     };
   }
 
-  async deleteProfile(user: User): Promise<ProfileResponse> {
-    this.logger.debug(`Delete profile ${JSON.stringify(user)}`);
+  async deleteProfile(userId: number): Promise<ProfileResponse> {
+    this.logger.debug(`Delete profile ${JSON.stringify(userId)}`);
+
+    const user = await this.findUser(userId);
 
     await this.cloudinaryService.deleteResources([
       `profile/${user.name}${user.id}`,

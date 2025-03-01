@@ -129,27 +129,19 @@ export class UserService {
     return this.toResponseUser(user, true);
   }
 
-  async logout(user: User): Promise<UserResponse> {
-    this.logger.debug(`Logout user ${JSON.stringify(user)}`);
-    const updatedUser = await this.prismaService.user.update({
-      where: {
-        email: user.email,
-      },
-      data: {
-        token: null,
-      },
-    });
-
-    return this.toResponseUser(updatedUser);
-  }
-
-  async delete(user: User, request: DeleteUserRequest): Promise<UserResponse> {
-    this.logger.debug(`Delete user ${JSON.stringify(user)}`);
+  async delete(
+    userId: number,
+    request: DeleteUserRequest,
+  ): Promise<UserResponse> {
+    this.logger.debug(`Delete user ${JSON.stringify(request)}`);
+    console.log(userId);
 
     const userRequest: DeleteUserRequest = this.validationService.validate(
       UserValidation.DELETE,
       request,
     );
+
+    const user = await this.findUser(userId);
 
     const isPasswordValid = await bcrypt.compare(
       userRequest.password,

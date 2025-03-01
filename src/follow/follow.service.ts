@@ -102,8 +102,12 @@ export class FollowService {
     };
   }
 
-  async follow(user: User, request: FollowRequest): Promise<FollowResponse> {
+  async follow(
+    userId: number,
+    request: FollowRequest,
+  ): Promise<FollowResponse> {
     this.logger.debug(`Request Follow: ${JSON.stringify(request)}`);
+    const user = await this.findUser(userId);
 
     const followRequest: FollowRequest = this.validationService.validate(
       FollowValidation.FOLLOW,
@@ -155,10 +159,12 @@ export class FollowService {
   }
 
   async updateStatus(
-    user: User,
+    userId: number,
     request: FollowRequest,
   ): Promise<FollowResponse> {
     this.logger.debug(`Update status follow: ${JSON.stringify(request)}`);
+
+    const user = await this.findUser(userId);
 
     const followRequest: FollowRequest = this.validationService.validate(
       FollowValidation.FOLLOW,
@@ -218,10 +224,12 @@ export class FollowService {
   }
 
   async unfollow(
-    user: User,
+    userId: number,
     request: FollowRequest,
   ): Promise<{ message: string }> {
     this.logger.debug(`Unfollow: ${JSON.stringify(request)}`);
+
+    const user = await this.findUser(userId);
 
     const unfollowRequest: FollowRequest = this.validationService.validate(
       FollowValidation.FOLLOW,
