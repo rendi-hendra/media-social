@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { Logger } from 'winston';
@@ -9,6 +9,7 @@ import { TestModule } from './test.module';
 import * as cookieParser from 'cookie-parser';
 import * as csurf from 'csurf';
 import { Request, Response, NextFunction } from 'express';
+import { JwtGuard } from '../src/common/jwt.guard';
 
 describe('UserController', () => {
   let app: INestApplication;
@@ -18,7 +19,18 @@ describe('UserController', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule, TestModule],
-    }).compile();
+    })
+      .overrideGuard(JwtGuard)
+      .useValue({
+        canActivate: jest
+          .fn()
+          .mockImplementation((context: ExecutionContext) => {
+            const req = context.switchToHttp().getRequest();
+            req.user = { sub: 155, name: 'test', username: 'test' }; // 🟢 Mock user login
+            return true;
+          }),
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
 
@@ -50,14 +62,14 @@ describe('UserController', () => {
   });
 
   // Get user current
-  describe('GET /api/users/current', () => {
+  describe('GET /api/users/:id', () => {
     beforeEach(async () => {
       await testService.deleteAll();
       await testService.createUser();
     });
     it('should be rejected if token is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/users/current')
+        .get('/api/users/1')
         .set('Authorization', 'wrong');
 
       logger.info(response.body);
@@ -67,15 +79,17 @@ describe('UserController', () => {
     });
 
     it('should be able to get user', async () => {
+      const user = await testService.getUser();
+      const userid = user.id;
       const response = await request(app.getHttpServer())
-        .get('/api/users/current')
-        .set('Authorization', 'test');
+        .get(`/api/users/${userid}`)
+        .set('Authorization', 'Bearer token');
 
       logger.info(response.body);
 
       expect(response.status).toBe(200);
       expect(response.body.data.name).toBe('test');
-      expect(response.body.data.email).toBe('test@example.com');
+      expect(response.body.data.username).toBe('test');
       expect(response.body.data.createdAt).toBeDefined();
     });
   });
