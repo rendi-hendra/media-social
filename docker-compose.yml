@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: rendi
+      POSTGRES_PASSWORD: rendi
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgresdb:/var/lib/postgresql/data
+    networks:
+      - postgres
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: my_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: rendi@example.com
+      PGADMIN_DEFAULT_PASSWORD: rendi
+    ports:
+      - '5050:80'
+    networks:
+      - postgres
+
+volumes:
+  postgresdb:
+    external: true
+
+networks:
+  postgres:
+    driver: bridge
