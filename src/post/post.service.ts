@@ -14,6 +14,9 @@ import { PostValidation } from './post.validation';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { CaslAbilityFactory } from '../common/ability.factory';
+import { subject } from '@casl/ability';
+import { Action } from '../enum/action.enum';
+import { ErrorMessage } from '../enum/error.enum';
 
 @Injectable()
 export class PostService {
@@ -25,35 +28,49 @@ export class PostService {
     private caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
-  async findUser(userId: number): Promise<User> {
+  private async findUser(userId: number): Promise<User> {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return user;
   }
 
-  async findPost(postId: string): Promise<Post> {
+  private async findPost(postId: string): Promise<Post> {
     const post = await this.prismaService.post.findUnique({
       where: { id: postId },
     });
     if (!post) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.POST_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return post;
   }
 
-  slugPost(title: string, name: string): string {
-    const randomString = nanoid(10);
-    return slugify(`${title} ${name} ${randomString}`, {
+  private checkPermission(user: User, post: Post, action: Action) {
+    const ability = this.caslAbilityFactory.createForPost(user);
+    if (ability.cannot(action, subject('Post', post))) {
+      throw new HttpException(ErrorMessage.FORBIDDEN, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  private generateSlug(title: string): string {
+    return slugify(`${title} ${nanoid(10)}`, {
       lower: true,
       strict: true,
     });
   }
 
-  toPostResponse(post: Post & { user: { name: string } }): PostResponse {
+  private toPostResponse(
+    post: Post & { user: { name: string } },
+  ): PostResponse {
     return {
       id: post.id,
       userId: post.userId,
@@ -92,7 +109,10 @@ export class PostService {
       },
     });
     if (!result) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.POST_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return this.toPostResponse(result);
   }
@@ -100,23 +120,23 @@ export class PostService {
   async beranda(userId: number): Promise<PostResponse[]> {
     const user = await this.findUser(userId);
 
-    // 1️⃣ Ambil daftar user yang di-follow
+    // Ambil daftar user yang di-follow
     const following = await this.prismaService.follow.findMany({
       where: { followerId: user.id },
       select: { followingId: true },
     });
 
-    // 2️⃣ Ambil hanya ID mereka dan tambahkan ID user sendiri
+    // Ambil hanya ID mereka dan tambahkan ID user sendiri
     const followedUserIds = following.map((follow) => follow.followingId);
     followedUserIds.push(user.id); // Tambahkan user.id agar postingannya sendiri juga muncul
 
-    // 3️⃣ Ambil post dari user yang di-follow termasuk dirinya sendiri
+    // Ambil post dari user yang di-follow termasuk dirinya sendiri
     const getPost = await this.prismaService.post.findMany({
       where: { userId: { in: followedUserIds } },
       include: { user: true },
     });
 
-    // 4️⃣ Kembalikan hasil yang benar
+    // Kembalikan hasil yang benar
     return getPost.map((post) => this.toPostResponse(post));
   }
 
@@ -125,11 +145,11 @@ export class PostService {
     request: CreatePostRequest,
     file: Express.Multer.File,
   ): Promise<PostResponse> {
-    this.logger.debug(`Register new user ${JSON.stringify(request)}`);
+    this.logger.debug(
+      `User ${userId} is creating a post with title: ${request.title}`,
+    );
 
     const user = await this.findUser(userId);
-
-    const randomString = nanoid(10);
 
     const requestPost: CreatePostRequest = this.validationService.validate(
       PostValidation.CREATED,
@@ -140,19 +160,16 @@ export class PostService {
       'profile/default',
     ]);
 
-    const slugPost = slugify(`${request.title} ${user.name} ${randomString}`, {
-      lower: true,
-      strict: true,
-    });
-
     if (!requestPost.image) {
       requestPost.image = defaultImage.resources[0].url;
     }
 
+    const slugPost = this.generateSlug(requestPost.title);
+
     const image = await this.cloudinaryService.uploadImage(file, {
       folder: 'post',
       resource_type: 'image',
-      public_id: `${user.name}${user.id}${randomString}`,
+      public_id: `${user.name}${user.id}${nanoid(10)}`,
       transformation: 'profile',
     });
 
@@ -179,14 +196,11 @@ export class PostService {
     this.validationService.validate(PostValidation.UPDATED, request);
 
     const user = await this.findUser(userId);
-
     const result = await this.findPost(postId);
 
-    if (result.userId !== user.id) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    }
+    this.checkPermission(user, result, Action.Update);
 
-    const slugPost = this.slugPost(request.title, user.name);
+    const slugPost = this.generateSlug(request.title);
 
     const post = await this.prismaService.post.update({
       where: { id: postId },
@@ -205,9 +219,7 @@ export class PostService {
     const user = await this.findUser(userId);
     const result = await this.findPost(postId);
 
-    if (result.userId !== user.id) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    }
+    this.checkPermission(user, result, Action.Delete);
 
     await this.prismaService.post.delete({
       where: { id: postId },

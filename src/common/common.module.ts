@@ -34,8 +34,10 @@ import { JwtGuard } from './jwt.guard';
       provide: APP_GUARD,
       useClass: JwtGuard,
     },
+    CaslAbilityFactory,
   ],
   exports: [
+    CaslAbilityFactory,
     PrismaService,
     ValidationService,
     CloudinaryService,
