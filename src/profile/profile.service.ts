@@ -6,6 +6,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ProfileResponse } from '../model/profile.model';
 import { User } from '@prisma/client';
+import { ErrorMessage } from '../enum/error.enum';
 
 @Injectable()
 export class ProfileService {
@@ -16,12 +17,15 @@ export class ProfileService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async findUser(userId: number): Promise<User> {
+  private async findUser(userId: number): Promise<User> {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return user;
   }

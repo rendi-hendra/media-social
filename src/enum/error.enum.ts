@@ -1,5 +1,17 @@
 export enum ErrorMessage {
+  USER_ALREADY_EXISTS = 'Username already exists',
+  EMAIL_ALREADY_EXISTS = 'Email already exists',
+  INVALID_EMAIL_OR_PASSWORD = 'Invalid email or password',
+  INVALID_PASSWORD = 'Invalid password',
   USER_NOT_FOUND = 'User not found',
   POST_NOT_FOUND = 'Post not found',
   FORBIDDEN = 'Forbidden',
+  MEMBERSHIP_ALREADY_BOUGHT = 'Membership already bought',
+  MEMBERSHIP_ALREADY_EXISTS = 'Membership already exists',
+  CANNOT_FOLLOW_YOURSELF = 'Cannot follow yourself',
+  ALREADY_FOLLOWING = 'Already following',
+  CANNOT_UPDATE_STATUS_YOURSELF = 'Cannot update status yourself',
+  FOLLOW_REQUEST_NOT_FOUND = 'Follow request not found',
+  STATUS_ALREADY_ACCEPTED = 'Status already accepted',
+  CANNOT_UNFOLLOW_YOURSELF = 'Cannot unfollow yourself',
 }

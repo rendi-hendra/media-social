@@ -15,7 +15,12 @@ async function bootstrap(config: ConfigService) {
   app.use(cookieParser());
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    const excludedRoutes = ['/api/users/login', '/api/users']; // Login dan Register dikecualikan
+    const excludedRoutes = [
+      '/api/users/login',
+      '/api/users',
+      '/',
+      '/api/payment/midtrans',
+    ]; // Login dan Register dikecualikan
     if (excludedRoutes.includes(req.path) && req.method === 'POST') {
       return next();
     }
