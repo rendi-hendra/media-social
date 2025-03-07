@@ -11,6 +11,7 @@ import {
 } from '../model/follow.model';
 import { User } from '@prisma/client';
 import { FollowValidation } from './follow.validation';
+import { ErrorMessage } from '../enum/error.enum';
 
 @Injectable()
 export class FollowService {
@@ -25,7 +26,10 @@ export class FollowService {
       where: { id: userId },
     });
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return user;
   }
@@ -38,7 +42,10 @@ export class FollowService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const [countFollowers, countFollowing] = await Promise.all([
@@ -115,7 +122,10 @@ export class FollowService {
     );
 
     if (user.id === followRequest.id) {
-      throw new HttpException('Cannot follow yourself', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        ErrorMessage.CANNOT_FOLLOW_YOURSELF,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Optimasi query dengan Promise.all
@@ -134,11 +144,17 @@ export class FollowService {
     ]);
 
     if (!userFollowing) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (existingFollow) {
-      throw new HttpException('Already following', HttpStatus.CONFLICT);
+      throw new HttpException(
+        ErrorMessage.ALREADY_FOLLOWING,
+        HttpStatus.CONFLICT,
+      );
     }
 
     const following = await this.prismaService.follow.create({
@@ -173,7 +189,7 @@ export class FollowService {
 
     if (user.id === followRequest.id) {
       throw new HttpException(
-        'Cannot update status yourself',
+        ErrorMessage.CANNOT_UPDATE_STATUS_YOURSELF,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -182,7 +198,6 @@ export class FollowService {
     const [userFollowing, followRecord] = await Promise.all([
       this.prismaService.user.findUnique({ where: { id: followRequest.id } }),
       this.prismaService.follow.findFirst({
-        // Gunakan findFirst jika tidak dijamin unik
         where: {
           followerId: followRequest.id,
           followingId: user.id,
@@ -191,15 +206,24 @@ export class FollowService {
     ]);
 
     if (!userFollowing) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (!followRecord) {
-      throw new HttpException('Follow request not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.FOLLOW_REQUEST_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (followRecord.status === 'ACCEPTED') {
-      throw new HttpException('Status already accepted', HttpStatus.CONFLICT);
+      throw new HttpException(
+        ErrorMessage.STATUS_ALREADY_ACCEPTED,
+        HttpStatus.CONFLICT,
+      );
     }
 
     // Update follow request menjadi ACCEPTED
@@ -238,7 +262,7 @@ export class FollowService {
 
     if (user.id === unfollowRequest.id) {
       throw new HttpException(
-        'Cannot unfollow yourself',
+        ErrorMessage.CANNOT_UNFOLLOW_YOURSELF,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -255,11 +279,17 @@ export class FollowService {
     ]);
 
     if (!userFollowing) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     if (!followRecord) {
-      throw new HttpException('Follow record not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.FOLLOW_REQUEST_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     // Hapus follow record

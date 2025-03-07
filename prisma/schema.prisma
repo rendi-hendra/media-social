@@ -25,6 +25,8 @@ model User {
   actor      Notification[] @relation("ActorRelation")
   user       Notification[] @relation("UserRelation")
   posts      Post[]
+  membership Membership[]
+  transaction Transaction[]
 
   @@map("users")
 }
@@ -93,10 +95,38 @@ model Like {
   @@map("likes")
 }
 
+model Membership {
+  id String @id @default(cuid())
+  userId Int @unique
+  amount Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  transaction Transaction[]
+
+  @@map("memberships")
+}
+
+model Transaction {
+  orderId    String   @unique
+  membershipId String
+  userId     Int
+  status     Status @default(PENDING)
+  createdAt  DateTime @default(now()) @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+ @@id([membershipId, userId])
+
+  @@map("transactions")
+}
+
 enum Status {
   PENDING
   ACCEPTED
   REJECTED
+  SETTLEMENT
+  EXPIRED
 }
 
 enum Type {

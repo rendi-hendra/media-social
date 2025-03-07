@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { CloudinaryService } from '../common/cloudinary.service';
 import { JwtService } from '@nestjs/jwt';
+import { ErrorMessage } from '../enum/error.enum';
 
 @Injectable()
 export class UserService {
@@ -42,7 +43,10 @@ export class UserService {
       where: { id: userId },
     });
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        ErrorMessage.USER_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
     return user;
   }
@@ -74,11 +78,17 @@ export class UserService {
     ]);
 
     if (userWithSameUsername) {
-      throw new HttpException('Username already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        ErrorMessage.USER_ALREADY_EXISTS,
+        HttpStatus.CONFLICT,
+      );
     }
 
     if (userWithSameEmail) {
-      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        ErrorMessage.EMAIL_ALREADY_EXISTS,
+        HttpStatus.CONFLICT,
+      );
     }
 
     registerRequest.password = await bcrypt.hash(registerRequest.password, 10);
@@ -110,7 +120,10 @@ export class UserService {
     });
 
     if (!user) {
-      throw new HttpException('Invalid email or password', 401);
+      throw new HttpException(
+        ErrorMessage.INVALID_EMAIL_OR_PASSWORD,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -119,7 +132,10 @@ export class UserService {
     );
 
     if (!isPasswordValid) {
-      throw new HttpException('Invalid email or password', 401);
+      throw new HttpException(
+        ErrorMessage.INVALID_EMAIL_OR_PASSWORD,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const payload = { sub: user.id, name: user.name, username: user.username };
@@ -149,7 +165,10 @@ export class UserService {
     );
 
     if (!isPasswordValid) {
-      throw new HttpException('Invalid password', 401);
+      throw new HttpException(
+        ErrorMessage.INVALID_PASSWORD,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     await this.prismaService.user.delete({

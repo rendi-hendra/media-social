@@ -7,6 +7,8 @@ import { ProfileModule } from './profile/profile.module';
 import { FollowModule } from './follow/follow.module';
 import { PostModule } from './post/post.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PaymentModule } from './payment/payment.module';
+import { MembershipModule } from './membership/membership.module';
 
 @Module({
   imports: [
@@ -17,11 +19,13 @@ import { JwtModule } from '@nestjs/jwt';
     ProfileModule,
     FollowModule,
     PostModule,
+    PaymentModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
+    MembershipModule,
   ],
   controllers: [],
   providers: [],
