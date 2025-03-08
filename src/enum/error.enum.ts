@@ -9,6 +9,8 @@ export enum ErrorMessage {
   MEMBERSHIP_ALREADY_BOUGHT = 'Membership already bought',
   MEMBERSHIP_ALREADY_EXISTS = 'Membership already exists',
   MEMBERSHIP_NOT_FOUND = 'Membership not found',
+  TRANSACTION_ALREADY_EXISTS = 'Transaction already exists',
+  TRANSACTION_NOT_FOUND = 'Transaction not found',
   CANNOT_FOLLOW_YOURSELF = 'Cannot follow yourself',
   ALREADY_FOLLOWING = 'Already following',
   CANNOT_UPDATE_STATUS_YOURSELF = 'Cannot update status yourself',

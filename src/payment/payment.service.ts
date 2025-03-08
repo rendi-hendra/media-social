@@ -8,7 +8,6 @@ import {
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../common/prisma.service';
 import { ErrorMessage } from '../enum/error.enum';
-import { MembershipStatus } from '../enum/status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -45,7 +44,7 @@ export class PaymentService {
   async createTransaction(userId: number, request: CreateTransactionRequest) {
     const url = this.configService.get('SANDBOX_URL');
 
-    const [membership, membershipTransaction] = await Promise.all([
+    const [membership, transaction] = await Promise.all([
       this.prismaService.membership.findUnique({
         where: {
           id: request.membershipId,
@@ -68,24 +67,11 @@ export class PaymentService {
       );
     }
 
-    if (membershipTransaction.status == MembershipStatus.SATTLEMENT) {
+    if (transaction) {
       throw new HttpException(
-        ErrorMessage.MEMBERSHIP_ALREADY_BOUGHT,
+        ErrorMessage.TRANSACTION_ALREADY_EXISTS,
         HttpStatus.BAD_REQUEST,
       );
-    }
-
-    if (membershipTransaction.status == MembershipStatus.PENDING) {
-      const transaction = await this.prismaService.transaction.findUnique({
-        where: {
-          membershipId_userId: {
-            userId,
-            membershipId: request.membershipId,
-          },
-        },
-      });
-
-      return transaction;
     }
 
     const body = {
@@ -110,14 +96,24 @@ export class PaymentService {
         token: response.data.token,
         redirectUrl: response.data.redirect_url,
       },
-      include: {
-        membership: true,
-      },
     });
 
-    return {
-      ...result,
-    };
+    return result;
+  }
+
+  async getTransaction(orderId: string) {
+    const transaction = await this.prismaService.transaction.findUnique({
+      where: { orderId },
+    });
+
+    if (!transaction) {
+      throw new HttpException(
+        ErrorMessage.TRANSACTION_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return transaction;
   }
 
   async getSatusTransaction(orderId: string) {
@@ -132,7 +128,7 @@ export class PaymentService {
     return response.data;
   }
 
-  async updateStatusTransaction(body: any) {
+  async handleMidtransWebhook(body: any) {
     if (body.transaction_status === 'settlement') {
       const response = await this.prismaService.transaction.update({
         where: { orderId: body.order_id },

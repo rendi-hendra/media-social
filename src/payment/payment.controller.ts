@@ -28,28 +28,6 @@ export class PaymentController {
     };
   }
 
-  @Post('/account')
-  @HttpCode(201)
-  async createAccountGopay(@Body() request: CreateAccountGopay) {
-    const result = await this.paymentService.createAccountGopay(request);
-    return {
-      data: result,
-    };
-  }
-
-  @Post('/transaction')
-  @HttpCode(200)
-  async createTransaction(
-    @Body() amount: CreateTransactionRequest,
-    @Req() request: JwtRequest,
-  ) {
-    const userId = request.user.sub;
-    const result = await this.paymentService.createTransaction(userId, amount);
-    return {
-      data: result,
-    };
-  }
-
   @Get('/transaction/:orderId/status')
   @HttpCode(200)
   async getStatusTransaction(@Param('orderId') orderId: string) {
@@ -62,7 +40,29 @@ export class PaymentController {
   @Get('/transaction/:orderId/')
   @HttpCode(200)
   async updateStatusTransaction(@Param('orderId') orderId: string) {
-    const result = await this.paymentService.updateStatusTransaction(orderId);
+    const result = await this.paymentService.getTransaction(orderId);
+    return {
+      data: result,
+    };
+  }
+
+  @Post('/account')
+  @HttpCode(201)
+  async createAccountGopay(@Body() request: CreateAccountGopay) {
+    const result = await this.paymentService.createAccountGopay(request);
+    return {
+      data: result,
+    };
+  }
+
+  @Post('/transaction')
+  @HttpCode(200)
+  async createTransaction(
+    @Body() body: CreateTransactionRequest,
+    @Req() request: JwtRequest,
+  ) {
+    const userId = request.user.sub;
+    const result = await this.paymentService.createTransaction(userId, body);
     return {
       data: result,
     };
@@ -72,7 +72,7 @@ export class PaymentController {
   @HttpCode(200)
   @Post('/midtrans')
   async handleMidtransWebhook(@Body() body: any) {
-    const result = await this.paymentService.updateStatusTransaction(body);
+    const result = await this.paymentService.handleMidtransWebhook(body);
     return {
       data: result,
     };
