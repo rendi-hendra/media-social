@@ -111,6 +111,8 @@ model Transaction {
   membershipId String
   userId     Int
   status     Status @default(PENDING)
+  token      String 
+  redirectUrl String
   createdAt  DateTime @default(now()) @db.Timestamptz()
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -8,6 +8,7 @@ import {
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../common/prisma.service';
 import { ErrorMessage } from '../enum/error.enum';
+import { MembershipStatus } from '../enum/status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -44,37 +45,53 @@ export class PaymentService {
   async createTransaction(userId: number, request: CreateTransactionRequest) {
     const url = this.configService.get('SANDBOX_URL');
 
-    const membership = await this.prismaService.transaction.findUnique({
-      where: {
-        membershipId_userId: {
-          userId,
-          membershipId: request.membershipId,
+    const [membership, membershipTransaction] = await Promise.all([
+      this.prismaService.membership.findUnique({
+        where: {
+          id: request.membershipId,
         },
-      },
-    });
+      }),
+      this.prismaService.transaction.findUnique({
+        where: {
+          membershipId_userId: {
+            userId,
+            membershipId: request.membershipId,
+          },
+        },
+      }),
+    ]);
 
-    if (membership) {
+    if (!membership) {
+      throw new HttpException(
+        ErrorMessage.MEMBERSHIP_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (membershipTransaction.status == MembershipStatus.SATTLEMENT) {
       throw new HttpException(
         ErrorMessage.MEMBERSHIP_ALREADY_BOUGHT,
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const transaction = await this.prismaService.transaction.create({
-      data: {
-        orderId: nanoid(10),
-        membershipId: request.membershipId,
-        userId: userId,
-      },
-      include: {
-        membership: true,
-      },
-    });
+    if (membershipTransaction.status == MembershipStatus.PENDING) {
+      const transaction = await this.prismaService.transaction.findUnique({
+        where: {
+          membershipId_userId: {
+            userId,
+            membershipId: request.membershipId,
+          },
+        },
+      });
+
+      return transaction;
+    }
 
     const body = {
       transaction_details: {
-        order_id: transaction.orderId,
-        gross_amount: transaction.membership.amount,
+        order_id: nanoid(10),
+        gross_amount: membership.amount,
       },
     };
 
@@ -85,10 +102,21 @@ export class PaymentService {
       },
     });
 
+    const result = await this.prismaService.transaction.create({
+      data: {
+        orderId: body.transaction_details.order_id,
+        membershipId: request.membershipId,
+        userId: userId,
+        token: response.data.token,
+        redirectUrl: response.data.redirect_url,
+      },
+      include: {
+        membership: true,
+      },
+    });
+
     return {
-      orderId: transaction.orderId,
-      token: response.data.token,
-      redirectUrl: response.data.redirect_url,
+      ...result,
     };
   }
 
