@@ -26,15 +26,15 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  toResponseUser(user: User, includeTokenAndusername = false): UserResponse {
+  toResponseUser(user: User, includeTokenAndEmail = false): UserResponse {
     return {
       id: user.id,
       name: user.name,
       username: user.username,
       image: user.image,
       createdAt: user.createdAt,
-      ...(includeTokenAndusername ? { email: user.email } : {}),
-      ...(includeTokenAndusername && user.token ? { token: user.token } : {}),
+      ...(includeTokenAndEmail ? { email: user.email } : {}),
+      ...(includeTokenAndEmail && user.token ? { token: user.token } : {}),
     };
   }
 

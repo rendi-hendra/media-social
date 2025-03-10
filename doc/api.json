@@ -33,7 +33,34 @@
     "url": "https://api.server.test/docs"
   },
   "paths": {
-    "/users/current": {
+    "/csrf": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get a CSRF token",
+        "responses": {
+          "200": {
+            "description": "Success get CSRF token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "csrfToken": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["csrfToken"]
+                },
+                "example": {
+                  "csrfToken": "123abc"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
       "get": {
         "security": [
           {
@@ -41,23 +68,33 @@
           }
         ],
         "tags": ["User"],
-        "summary": "Get user current",
-        "description": "Get user current",
+        "summary": "Get user id",
+        "description": "Get user id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserId"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Success get user current",
+            "description": "Success get user id",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrGetCurrent"
+                  "$ref": "#/components/schemas/GetUserId"
                 },
                 "example": {
                   "id": 1,
                   "name": "Rendi",
-                  "email": "test@examples.com"
+                  "username": "rendi",
+                  "image": "http://example.com",
+                  "createdAt": "2025-12-10T00:00:00.000Z"
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/UsersNotFound"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -75,22 +112,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/CreateUser"
               },
               "example": {
                 "name": "Rendi",
+                "username": "Rendi",
                 "email": "test@examples.com",
                 "password": "password"
               }
@@ -103,11 +129,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrGetCurrent"
+                  "$ref": "#/components/schemas/CreateUser"
                 },
                 "example": {
                   "id": 1,
                   "name": "Rendi",
+                  "username": "Rendi",
                   "email": "test@examples.com",
                   "createdAt": "2025-12-10T00:00:00.000Z"
                 }
@@ -132,6 +159,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "username": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string",
                     "format": "email"
@@ -142,6 +172,7 @@
                 }
               },
               "example": {
+                "username": "test",
                 "email": "test@examples.com",
                 "password": "password"
               }
@@ -162,20 +193,29 @@
                     "name": {
                       "type": "string"
                     },
+                    "username": {
+                      "type": "string"
+                    },
                     "email": {
                       "type": "string",
                       "format": "email"
                     },
                     "token": {
                       "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "datetime"
                     }
                   }
                 },
                 "example": {
                   "id": 1,
                   "name": "Rendi",
+                  "username": "Rendi",
                   "email": "test@examples.com",
-                  "token": "123TOKEN"
+                  "token": "123TOKEN",
+                  "createdAt": "2025-12-10T00:00:00.000Z"
                 }
               }
             }
@@ -201,55 +241,6 @@
         }
       }
     },
-    "/users/logout": {
-      "delete": {
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
-        "tags": ["User"],
-        "summary": "Logout user",
-        "description": "Update logout existing user to database",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  }
-                }
-              },
-              "example": {
-                "email": "test@examples.com"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success user logout",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LogoutOrDelete"
-                },
-                "example": {
-                  "success": true
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          }
-        }
-      }
-    },
     "/user/current": {
       "delete": {
         "security": [
@@ -265,42 +256,45 @@
             "$ref": "#/components/parameters/UserId"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "password": "password"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success delete user",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LogoutOrDelete"
+                  "$ref": "#/components/schemas/GetUserId"
                 },
-                "examples": {
-                  "success": {
-                    "description": "Success delete user",
-                    "value": {
-                      "success": true
-                    }
-                  }
+                "example": {
+                  "id": 1,
+                  "name": "Rendi",
+                  "username": "Rendi",
+                  "email": "test@examples.com",
+                  "token": "123TOKEN",
+                  "createdAt": "2025-12-10T00:00:00.000Z"
                 }
               }
             }
           },
-          "404": {
-            "description": "Failed delete not found user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LogoutOrDelete"
-                },
-                "examples": {
-                  "failed": {
-                    "description": "Failed delete user",
-                    "value": {
-                      "success": false
-                    }
-                  }
-                }
-              }
-            }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
           }
         }
       }
@@ -2024,6 +2018,24 @@
           }
         }
       },
+      "UsersNotFound": {
+        "description": "User not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "message": "User not found."
+            }
+          }
+        }
+      },
       "PostsNotFound": {
         "description": "Post not found",
         "content": {
@@ -2044,13 +2056,34 @@
       }
     },
     "schemas": {
-      "CreateOrGetCurrent": {
+      "GetUserId": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number"
           },
           "name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "username": {
             "type": "string"
           },
           "email": {
