@@ -44,10 +44,18 @@ export class PaymentService {
   async createTransaction(userId: number, request: CreateTransactionRequest) {
     const url = this.configService.get('SANDBOX_URL');
 
-    const [membership, transaction] = await Promise.all([
+    const [user, membership, transaction] = await Promise.all([
+      this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+      }),
       this.prismaService.membership.findUnique({
         where: {
           id: request.membershipId,
+        },
+        include: {
+          user: true,
         },
       }),
       this.prismaService.transaction.findUnique({
@@ -78,6 +86,26 @@ export class PaymentService {
       transaction_details: {
         order_id: nanoid(10),
         gross_amount: membership.amount,
+      },
+      item_details: [
+        {
+          id: membership.id,
+          price: membership.amount,
+          quantity: 1,
+          name: `Membership ${membership.user.name}`,
+          brand: 'Membership',
+          category: 'Membership',
+          merchant_name: 'Rendi media social',
+        },
+      ],
+      customer_details: {
+        id: user.id,
+        first_name: user.name,
+        email: user.email,
+      },
+      page_expiry: {
+        duration: 1,
+        unit: 'hours',
       },
     };
 
