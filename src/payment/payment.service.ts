@@ -165,5 +165,12 @@ export class PaymentService {
 
       return response;
     }
+    if (body.transaction_status === 'expire') {
+      const response = await this.prismaService.transaction.delete({
+        where: { orderId: body.order_id },
+      });
+
+      return response;
+    }
   }
 }
