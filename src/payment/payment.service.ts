@@ -4,10 +4,12 @@ import axios from 'axios';
 import {
   CreateAccountGopay,
   CreateTransactionRequest,
+  ResponsePayment,
 } from '../model/payment.model';
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../common/prisma.service';
 import { ErrorMessage } from '../enum/error.enum';
+import { Transaction } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -41,13 +43,19 @@ export class PaymentService {
     return response.data;
   }
 
-  async createTransaction(userId: number, request: CreateTransactionRequest) {
+  async createTransaction(
+    userId: number,
+    request: CreateTransactionRequest,
+  ): Promise<ResponsePayment> {
     const url = this.configService.get('SANDBOX_URL');
 
     const [user, membership, transaction] = await Promise.all([
       this.prismaService.user.findUnique({
         where: {
           id: userId,
+        },
+        include: {
+          user: true,
         },
       }),
       this.prismaService.membership.findUnique({
@@ -126,10 +134,23 @@ export class PaymentService {
       },
     });
 
-    return result;
+    return {
+      transaction_details: {
+        order_id: result.orderId,
+        gross_amount: membership.amount,
+      },
+      customer_details: {
+        id: transaction.userId,
+        first_name: user.name,
+      },
+      page_expiry: {
+        duration: 1,
+        unit: 'hours',
+      },
+    };
   }
 
-  async getTransaction(orderId: string) {
+  async getTransaction(orderId: string): Promise<Transaction> {
     const transaction = await this.prismaService.transaction.findUnique({
       where: { orderId },
     });
