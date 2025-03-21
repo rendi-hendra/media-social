@@ -10,23 +10,15 @@ import {
 import { PaymentService } from './payment.service';
 import { Public } from '../common/public.decorator';
 import {
-  CreateAccountGopay,
   CreateTransactionRequest,
+  PaymentResponse,
 } from './../model/payment.model';
 import { JwtRequest } from '../model/jwt.model';
+import { WebResponse } from '../model/web.model';
 
 @Controller('/api/payment')
 export class PaymentController {
   constructor(private paymentService: PaymentService) {}
-
-  @Get('/account/:accountId')
-  @HttpCode(200)
-  async getAccountGopay(@Param('accountId') accountId: string) {
-    const result = await this.paymentService.getAccountGopay(accountId);
-    return {
-      data: result,
-    };
-  }
 
   @Get('/transaction/:orderId/status')
   @HttpCode(200)
@@ -37,19 +29,10 @@ export class PaymentController {
     };
   }
 
-  @Get('/transaction/:orderId/')
+  @Get('/transaction/:orderId')
   @HttpCode(200)
   async updateStatusTransaction(@Param('orderId') orderId: string) {
     const result = await this.paymentService.getTransaction(orderId);
-    return {
-      data: result,
-    };
-  }
-
-  @Post('/account')
-  @HttpCode(201)
-  async createAccountGopay(@Body() request: CreateAccountGopay) {
-    const result = await this.paymentService.createAccountGopay(request);
     return {
       data: result,
     };
@@ -60,7 +43,7 @@ export class PaymentController {
   async createTransaction(
     @Body() body: CreateTransactionRequest,
     @Req() request: JwtRequest,
-  ) {
+  ): Promise<WebResponse<PaymentResponse>> {
     const userId = request.user.sub;
     const result = await this.paymentService.createTransaction(userId, body);
     return {

@@ -86,7 +86,7 @@ export class PostService {
   async getPostsByUserId(userId: number): Promise<PostResponse[]> {
     await this.findUser(userId);
 
-    const result = await this.prismaService.post.findMany({
+    const post = await this.prismaService.post.findMany({
       where: {
         userId: userId,
       },
@@ -95,11 +95,11 @@ export class PostService {
       },
     });
 
-    return result.map((post) => this.toPostResponse(post));
+    return post.map((post) => this.toPostResponse(post));
   }
 
   async getPostByPostId(userId: number, postId: string): Promise<PostResponse> {
-    const result = await this.prismaService.post.findUnique({
+    const post = await this.prismaService.post.findUnique({
       where: {
         id: postId,
         userId: userId,
@@ -108,13 +108,13 @@ export class PostService {
         user: true,
       },
     });
-    if (!result) {
+    if (!post) {
       throw new HttpException(
         ErrorMessage.POST_NOT_FOUND,
         HttpStatus.NOT_FOUND,
       );
     }
-    return this.toPostResponse(result);
+    return this.toPostResponse(post);
   }
 
   async beranda(userId: number): Promise<PostResponse[]> {
@@ -215,16 +215,25 @@ export class PostService {
     return this.toPostResponse(post);
   }
 
-  async deletePost(userId: number, postId: string): Promise<boolean> {
+  async deletePost(userId: number, postId: string): Promise<PostResponse> {
     const user = await this.findUser(userId);
-    const result = await this.findPost(postId);
+    const post = await this.findPost(postId);
 
-    this.checkPermission(user, result, Action.Delete);
+    this.checkPermission(user, post, Action.Delete);
 
     await this.prismaService.post.delete({
       where: { id: postId },
     });
 
-    return true;
+    return {
+      id: postId,
+      userId: userId,
+      author: user.name,
+      title: post.title,
+      slug: post.slug,
+      image: post.image,
+      description: post.description,
+      createdAt: post.createdAt,
+    };
   }
 }

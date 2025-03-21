@@ -91,7 +91,7 @@ export class PostController {
   async deletePost(
     @Req() req: JwtRequest,
     @Param('postId') postId: string,
-  ): Promise<WebResponse<boolean>> {
+  ): Promise<WebResponse<PostResponse>> {
     const userId: number = req.user.sub;
     const result = await this.postService.deletePost(userId, postId);
     return {

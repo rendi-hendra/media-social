@@ -2,9 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
-  CreateAccountGopay,
   CreateTransactionRequest,
-  ResponsePayment,
+  PaymentResponse,
 } from '../model/payment.model';
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../common/prisma.service';
@@ -20,33 +19,10 @@ export class PaymentService {
   private serverKey = this.configService.get('SERVER_KEY');
   private token = btoa(this.serverKey);
 
-  async getAccountGopay(accountId: string) {
-    const url = `https://api.sandbox.midtrans.com/v2/pay/account/${accountId}`;
-
-    const response = await axios.get(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${this.token}`,
-      },
-    });
-    return response.data;
-  }
-  async createAccountGopay(request: CreateAccountGopay) {
-    const url = 'https://api.sandbox.midtrans.com/v2/pay/account';
-
-    const response = await axios.post(url, request, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${this.token}`,
-      },
-    });
-    return response.data;
-  }
-
   async createTransaction(
     userId: number,
     request: CreateTransactionRequest,
-  ): Promise<ResponsePayment> {
+  ): Promise<PaymentResponse> {
     const url = this.configService.get('SANDBOX_URL');
 
     const [user, membership, transaction] = await Promise.all([

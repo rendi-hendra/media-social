@@ -1,4 +1,4 @@
-export class ResponsePayment {
+export class PaymentResponse {
   transaction_details: {
     order_id: string;
     gross_amount: number;
@@ -10,14 +10,6 @@ export class ResponsePayment {
   page_expiry: {
     duration: 1;
     unit: 'hours';
-  };
-}
-
-export class CreateAccountGopay {
-  payment_type: string;
-  gopay_partner: {
-    phone_number: string;
-    country_code: string;
   };
 }
 
