@@ -9,6 +9,7 @@ import { PostModule } from './post/post.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PaymentModule } from './payment/payment.module';
 import { MembershipModule } from './membership/membership.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MembershipModule } from './membership/membership.module';
       signOptions: { expiresIn: '1d' },
     }),
     MembershipModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],
