@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
-  CreateMembershipRequest,
+  CreateAndUpdateMembershipRequest,
   MembershipResponse,
 } from '../model/membership.model';
 import { PrismaService } from '../common/prisma.service';
@@ -11,7 +11,7 @@ export class MembershipService {
   constructor(private prismaService: PrismaService) {}
 
   async createMembership(
-    request: CreateMembershipRequest,
+    request: CreateAndUpdateMembershipRequest,
     userId: number,
   ): Promise<MembershipResponse> {
     const user = await this.prismaService.membership.findUnique({
@@ -36,6 +36,34 @@ export class MembershipService {
       userId: newMembership.userId,
       amount: newMembership.amount,
       createdAt: newMembership.createdAt,
+    };
+  }
+
+  async updateMembership(
+    request: CreateAndUpdateMembershipRequest,
+    userId: number,
+  ): Promise<MembershipResponse> {
+    const membership = await this.prismaService.membership.findUnique({
+      where: { userId },
+    });
+
+    if (!membership) {
+      throw new HttpException(
+        ErrorMessage.MEMBERSHIP_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedMembership = await this.prismaService.membership.update({
+      where: { userId: membership.userId },
+      data: { amount: Number(request.amount) },
+    });
+
+    return {
+      id: updatedMembership.id,
+      userId: updatedMembership.userId,
+      amount: updatedMembership.amount,
+      createdAt: updatedMembership.createdAt,
     };
   }
 }

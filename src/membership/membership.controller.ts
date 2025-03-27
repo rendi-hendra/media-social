@@ -1,7 +1,7 @@
-import { Body, Controller, HttpCode, Post, Req } from '@nestjs/common';
+import { Body, Controller, HttpCode, Patch, Post, Req } from '@nestjs/common';
 import { MembershipService } from './membership.service';
 import {
-  CreateMembershipRequest,
+  CreateAndUpdateMembershipRequest,
   MembershipResponse,
 } from '../model/membership.model';
 import { WebResponse } from '../model/web.model';
@@ -14,10 +14,25 @@ export class MembershipController {
   @Post()
   @HttpCode(201)
   async createMembership(
-    @Body() request: CreateMembershipRequest,
+    @Body() request: CreateAndUpdateMembershipRequest,
     @Req() req: JwtRequest,
   ): Promise<WebResponse<MembershipResponse>> {
     const result = await this.membershipService.createMembership(
+      request,
+      req.user.sub,
+    );
+    return {
+      data: result,
+    };
+  }
+
+  @Patch()
+  @HttpCode(201)
+  async updateMembership(
+    @Body() request: CreateAndUpdateMembershipRequest,
+    @Req() req: JwtRequest,
+  ): Promise<WebResponse<MembershipResponse>> {
+    const result = await this.membershipService.updateMembership(
       request,
       req.user.sub,
     );

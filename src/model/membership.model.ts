@@ -5,6 +5,6 @@ export class MembershipResponse {
   createdAt: Date;
 }
 
-export class CreateMembershipRequest {
+export class CreateAndUpdateMembershipRequest {
   amount: number;
 }
